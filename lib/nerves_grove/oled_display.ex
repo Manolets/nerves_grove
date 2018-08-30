@@ -20,6 +20,8 @@ defmodule Nerves.Grove.OLED.Display do
       OLED.Display.put_string(pid, "Hello, world")
   """
 
+  alias ElixirALE.I2C
+
   @default_address 0x3C
   @command_mode 0x80
   @data_mode 0x40
@@ -126,7 +128,7 @@ defmodule Nerves.Grove.OLED.Display do
 
   @spec start_link(byte) :: {:ok, pid} | {:error, any}
   def start_link(address \\ @default_address) do
-    I2c.start_link("i2c-2", address)
+    I2C.start_link("i2c-2", address)
   end
 
   @spec reset(pid) :: :ok
@@ -173,7 +175,7 @@ defmodule Nerves.Grove.OLED.Display do
     block = :erlang.list_to_binary([@data_mode, String.duplicate("\x00", 16)])
 
     Enum.each(1..48, fn _ ->
-      Enum.each(1..div(96, 16), fn _ -> I2c.write(pid, block) end)
+      Enum.each(1..div(96, 16), fn _ -> I2C.write(pid, block) end)
     end)
   end
 
@@ -300,11 +302,11 @@ defmodule Nerves.Grove.OLED.Display do
 
   @spec send_command(pid, byte) :: :ok
   defp send_command(pid, command) do
-    I2c.write(pid, <<@command_mode, command>>)
+    I2C.write(pid, <<@command_mode, command>>)
   end
 
   @spec send_data(pid, byte) :: :ok
   defp send_data(pid, data) do
-    I2c.write(pid, <<@data_mode, data>>)
+    I2C.write(pid, <<@data_mode, data>>)
   end
 end

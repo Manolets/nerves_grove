@@ -12,14 +12,15 @@ defmodule Nerves.Grove.Button do
 
       state = Button.read(pid)  # check if button is pressed
   """
+  alias ElixirALE.GPIO
 
   @spec start_link(pos_integer) :: {:ok, pid} | {:error, any}
   def start_link(pin) do
-    Gpio.start_link(pin, :input)
+    GPIO.start_link(pin, :input)
   end
 
   @spec read(pid) :: boolean
   def read(pid) do
-    Gpio.read(pid) == 1
+    GPIO.read(pid) == 1
   end
 end

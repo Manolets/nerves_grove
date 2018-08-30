@@ -13,13 +13,15 @@ defmodule Nerves.Grove.Sensor.Collision do
       state = Sensor.Collision.read(pid)  # check if sensor was triggered
   """
 
+  alias ElixirALE.GPIO
+
   @spec start_link(pos_integer) :: {:ok, pid} | {:error, any}
   def start_link(pin) when is_integer(pin) do
-    Gpio.start_link(pin, :input)
+    GPIO.start_link(pin, :input)
   end
 
   @spec read(pid) :: boolean
   def read(pid) when is_pid(pid) do
-    Gpio.read(pid) == 0
+    GPIO.read(pid) == 0
   end
 end

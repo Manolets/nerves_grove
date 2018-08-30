@@ -13,9 +13,11 @@ defmodule Nerves.Grove.LED do
       LED.blink(pid)
   """
 
+  alias ElixirALE.GPIO
+
   @spec start_link(pos_integer) :: {:ok, pid} | {:error, any}
   def start_link(pin) when is_integer(pin) do
-    Gpio.start_link(pin, :output)
+    GPIO.start_link(pin, :output)
   end
 
   @doc "Blinks the LED for a specified duration."
@@ -30,12 +32,12 @@ defmodule Nerves.Grove.LED do
   @doc "Switches on the LED."
   @spec on(pid) :: any
   def on(pid) when is_pid(pid) do
-    Gpio.write(pid, 1)
+    GPIO.write(pid, 1)
   end
 
   @doc "Switches off the LED."
   @spec off(pid) :: any
   def off(pid) when is_pid(pid) do
-    Gpio.write(pid, 0)
+    GPIO.write(pid, 0)
   end
 end
