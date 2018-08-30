@@ -157,6 +157,7 @@ defmodule Nerves.Grove.OLED.Display do
     :timer.sleep(100)
     set_row_address(pid, 0, 95)
     set_column_address(pid, 8, 8 + 47)
+    :ok
   end
 
   @spec on(pid) :: :ok
@@ -185,7 +186,7 @@ defmodule Nerves.Grove.OLED.Display do
     set_row_address(pid, 0x00 + row * 8, 0x07 + row * 8)
   end
 
-  @spec put_string(pid, <<>>) :: :ok
+  # @spec put_string(pid, <<>>) :: :ok
   def put_string(_pid, <<>>), do: nil
 
   @spec put_string(pid, binary) :: any
@@ -194,7 +195,7 @@ defmodule Nerves.Grove.OLED.Display do
     put_string(pid, rest)
   end
 
-  @spec put_char(pid, byte) :: any
+  # @spec put_char(pid, byte) :: any
   def put_char(pid, char) when is_integer(char) and char in 32..127 do
     c = char - 32
 
@@ -232,16 +233,19 @@ defmodule Nerves.Grove.OLED.Display do
   @spec set_column_address(pid, byte, byte) :: :ok
   def set_column_address(pid, start, end_) do
     send_commands(pid, <<0x15, start, end_>>)
+    :ok
   end
 
   @spec set_row_address(pid, byte, byte) :: :ok
   def set_row_address(pid, start, end_) do
     send_commands(pid, <<0x75, start, end_>>)
+    :ok
   end
 
   @spec set_contrast_level(pid, byte) :: :ok
   def set_contrast_level(pid, level) do
     send_commands(pid, <<0x81, level>>)
+    :ok
   end
 
   @spec set_horizontal_mode(pid) :: :ok
@@ -254,16 +258,19 @@ defmodule Nerves.Grove.OLED.Display do
   @spec set_vertical_mode(pid) :: :ok
   def set_vertical_mode(pid) do
     send_commands(pid, <<0xA0, 0x46>>)
+    :ok
   end
 
   @spec set_start_line(pid, 0..127) :: :ok
   def set_start_line(pid, row) do
     send_commands(pid, <<0xA1, row>>)
+    :ok
   end
 
   @spec set_display_offset(pid, 0..127) :: :ok
   def set_display_offset(pid, row) do
     send_commands(pid, <<0xA2, row>>)
+    :ok
   end
 
   @spec set_normal_mode(pid) :: :ok
@@ -279,6 +286,7 @@ defmodule Nerves.Grove.OLED.Display do
   @spec set_multiplex_ratio(pid, 16..128) :: :ok
   def set_multiplex_ratio(pid, ratio) do
     send_commands(pid, <<0xA8, ratio>>)
+    :ok
   end
 
   @spec set_activate_scroll(pid, false) :: :ok
@@ -291,8 +299,8 @@ defmodule Nerves.Grove.OLED.Display do
     send_command(pid, 0x2F)
   end
 
-  @spec send_commands(pid, <<>>) :: :ok
-  defp send_commands(_pid, <<>>), do: nil
+  # @spec send_commands(pid, <<>>) :: :ok
+  defp send_commands(_pid, <<>>), do: :ok
 
   @spec send_commands(pid, binary) :: :ok
   defp send_commands(pid, <<head, rest::binary>>) do

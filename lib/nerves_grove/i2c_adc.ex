@@ -31,9 +31,6 @@ defmodule Nerves.Grove.I2C.ADC do
       {:ok, pid} ->
         set_automatic_mode(pid, true)
         {:ok, pid}
-
-      error ->
-        error
     end
   end
 

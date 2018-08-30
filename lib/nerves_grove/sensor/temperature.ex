@@ -24,7 +24,7 @@ defmodule Nerves.Grove.Sensor.Temperature do
   # v1.2
   @b_const 4_250
   # ohm
-  @r_0 100_000.0
+  #@r_0 100_000.0
   # K (25 C)
   @t_0 298.15
   # K (0 C)
