@@ -21,7 +21,7 @@ defmodule Nerves.Grove.Buzzer do
   @doc "Beeps the buzzer for a specified duration."
   @spec beep(pid, number) :: any
   def beep(pid, duration \\ 0.1) do
-    duration_in_ms = duration * 1000 |> round
+    duration_in_ms = (duration * 1000) |> round
     on(pid)
     :timer.sleep(duration_in_ms)
     off(pid)

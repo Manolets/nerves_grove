@@ -16,8 +16,10 @@ defmodule Nerves.Grove.Potentiometer do
 
   alias Nerves.Grove.I2C
 
-  @default_address 0x50 # I2C ADC
-  @default_vcc     3.3  # V
+  # I2C ADC
+  @default_address 0x50
+  # V
+  @default_vcc 3.3
 
   @spec start_link(byte) :: {:ok, pid} | {:error, any}
   def start_link(address \\ @default_address) when is_integer(address) do

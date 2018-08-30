@@ -20,7 +20,8 @@ defmodule Nerves.Grove.I2C.ADC do
   @default_address 0x50
   @result_register 0x00
   @config_register 0x02
-  @v_ref           3.0  # V
+  # V
+  @v_ref 3.0
 
   @spec start_link(byte) :: {:ok, pid} | {:error, any}
   def start_link(address \\ @default_address) when is_integer(address) do
@@ -28,7 +29,9 @@ defmodule Nerves.Grove.I2C.ADC do
       {:ok, pid} ->
         set_automatic_mode(pid, true)
         {:ok, pid}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -50,11 +53,14 @@ defmodule Nerves.Grove.I2C.ADC do
 
   @spec read_voltage(pid, integer) :: float
   def read_voltage(pid, samples \\ 5) when is_pid(pid) and is_integer(samples) do
-    sum = read_samples(pid, samples)
+    sum =
+      read_samples(pid, samples)
       |> Enum.map(fn sample -> sample / 4095 end)
-      |> Enum.sum
+      |> Enum.sum()
+
     avg = sum / samples
-    avg * @v_ref * 2 # FIXME: why is the 2 necessary?
+    # FIXME: why is the 2 necessary?
+    avg * @v_ref * 2
   end
 
   @spec read_samples(pid, integer) :: [0..4095]
@@ -65,9 +71,10 @@ defmodule Nerves.Grove.I2C.ADC do
   @spec read_sample(pid) :: 0..4095
   def read_sample(pid) when is_pid(pid) do
     <<
-      _ :: size(4),
-      sample :: big-unsigned-integer-size(12)
+      _::size(4),
+      sample::big-unsigned-integer-size(12)
     >> = I2c.write_read(pid, <<@result_register>>, 2)
+
     sample
   end
 end

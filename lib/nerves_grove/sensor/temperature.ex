@@ -19,11 +19,16 @@ defmodule Nerves.Grove.Sensor.Temperature do
 
   alias Nerves.Grove.I2C
 
-  @default_address 0x50      # I2C ADC
-  @b_const         4_250     # v1.2
-  @r_0             100_000.0 # ohm
-  @t_0             298.15    # K (25 C)
-  @t_celsius       273.15    # K (0 C)
+  # I2C ADC
+  @default_address 0x50
+  # v1.2
+  @b_const 4_250
+  # ohm
+  @r_0 100_000.0
+  # K (25 C)
+  @t_0 298.15
+  # K (0 C)
+  @t_celsius 273.15
 
   @spec start_link(byte) :: {:ok, pid} | {:error, any}
   def start_link(address \\ @default_address) when is_integer(address) do
@@ -32,7 +37,7 @@ defmodule Nerves.Grove.Sensor.Temperature do
 
   @spec read_centigrade(pid, integer) :: float
   def read_centigrade(pid, samples \\ 20) when is_pid(pid) and is_integer(samples) do
-    read_kelvin(pid, samples) - @t_celsius |> Float.round(2)
+    (read_kelvin(pid, samples) - @t_celsius) |> Float.round(2)
   end
 
   @spec read_kelvin(pid, integer) :: float
@@ -42,7 +47,7 @@ defmodule Nerves.Grove.Sensor.Temperature do
     voltage = I2C.ADC.read_voltage(pid, samples)
     sensor_value_tmp = voltage / 3.3 * 1_023
     resistance = (1_023 - sensor_value_tmp) * 10_000 / sensor_value_tmp
-    temperature = 1 / (:math.log(resistance / 10_000) / @b_const + (1 / @t_0))
+    temperature = 1 / (:math.log(resistance / 10_000) / @b_const + 1 / @t_0)
     temperature |> Float.round(2)
   end
 end

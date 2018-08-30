@@ -19,7 +19,8 @@ defmodule Nerves.Grove.Sensor.Sound do
 
   alias Nerves.Grove.I2C
 
-  @default_address 0x50 # I2C ADC
+  # I2C ADC
+  @default_address 0x50
 
   @spec start_link(byte) :: {:ok, pid} | {:error, any}
   def start_link(address \\ @default_address) when is_integer(address) do
