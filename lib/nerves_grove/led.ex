@@ -25,7 +25,7 @@ defmodule Nerves.Grove.LED do
   def blink(pid, duration \\ 0.2) when is_pid(pid) and is_number(duration) do
     duration_in_ms = (duration * 1000) |> round
     on(pid)
-    :timer.sleep(duration_in_ms)
+    Process.sleep(duration_in_ms)
     off(pid)
   end
 
