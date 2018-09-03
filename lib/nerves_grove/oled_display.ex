@@ -154,7 +154,7 @@ defmodule Nerves.Grove.OLED.Display do
     set_activate_scroll(pid, false)
     on(pid)
     # ms
-    :timer.sleep(100)
+    Process.sleep(100)
     set_row_address(pid, 0, 95)
     set_column_address(pid, 8, 8 + 47)
     :ok

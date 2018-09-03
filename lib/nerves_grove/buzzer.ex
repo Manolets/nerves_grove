@@ -24,7 +24,7 @@ defmodule Nerves.Grove.Buzzer do
   def beep(pid, duration \\ 0.1) do
     duration_in_ms = (duration * 1000) |> round
     on(pid)
-    :timer.sleep(duration_in_ms)
+    Process.sleep(duration_in_ms)
     off(pid)
   end
 
