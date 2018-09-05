@@ -29,6 +29,16 @@ defmodule Nerves.Grove.OneNumberLeds do
     GPIO.write(pids.g, 0)
   end
 
+  def zero(pids) do
+    new(pids)
+    GPIO.write(pids.a, 1)
+    GPIO.write(pids.b, 1)
+    GPIO.write(pids.c, 1)
+    GPIO.write(pids.d, 1)
+    GPIO.write(pids.e, 1)
+    GPIO.write(pids.f, 1)
+  end
+
   def one(pids) do
     new(pids)
     GPIO.write(pids.b, 1)
@@ -39,8 +49,8 @@ defmodule Nerves.Grove.OneNumberLeds do
     new(pids)
     GPIO.write(pids.a, 1)
     GPIO.write(pids.b, 1)
-    GPIO.write(pids.g, 1)
     GPIO.write(pids.e, 1)
+    GPIO.write(pids.g, 1)
     GPIO.write(pids.d, 1)
   end
 
@@ -50,7 +60,7 @@ defmodule Nerves.Grove.OneNumberLeds do
     GPIO.write(pids.b, 1)
     GPIO.write(pids.c, 1)
     GPIO.write(pids.d, 1)
-    GPIO.write(pids.e, 1)
+    GPIO.write(pids.g, 1)
   end
 
   def four(pids) do
