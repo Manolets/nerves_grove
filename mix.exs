@@ -2,7 +2,7 @@ defmodule Nerves.Grove.Mixfile do
   use Mix.Project
 
   @name "Nerves.Grove"
-  @version File.read!("VERSION") |> String.strip()
+  @version File.read!("VERSION") |> String.trim()
   @github "https://github.com/bendiken/nerves_grove"
   @bitbucket "https://bitbucket.org/bendiken/nerves_grove"
   @homepage @github

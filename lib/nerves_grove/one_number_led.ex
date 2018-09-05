@@ -1,7 +1,9 @@
 defmodule Nerves.Grove.OneNumberLeds do
+  require Logger
   alias ElixirALE.GPIO
 
-  @type pids(a, b, c, d, e, f, g) :: [{a, b, c, d, e, f, g}]
+  @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid()}
+
   def set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g) do
     {:ok, a} = GPIO.start_link(pin_a, :output)
     {:ok, b} = GPIO.start_link(pin_b, :output)
@@ -11,10 +13,12 @@ defmodule Nerves.Grove.OneNumberLeds do
     {:ok, f} = GPIO.start_link(pin_f, :output)
     {:ok, g} = GPIO.start_link(pin_g, :output)
 
-    pids = {a, b, c, d, e, f, g}
+    pids = %{a: a, b: b, c: c, d: d, e: e, f: f, g: g}
     pids
   end
 
+  @spec new(atom() | %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid()}) ::
+          :ok | {:error, any()}
   def new(pids) do
     GPIO.write(pids.a, 0)
     GPIO.write(pids.b, 0)
