@@ -1,7 +1,7 @@
 defmodule Nerves.Grove.OneNumberLeds do
   alias ElixirALE.GPIO
 
-  @type pids(a, b, c, d, e, f, g) :: {a, b, c, d, e, f, g}
+  @type pids(a, b, c, d, e, f, g) :: [{a, b, c, d, e, f, g}]
   def set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g) do
     {:ok, a} = GPIO.start_link(pin_a, :output)
     {:ok, b} = GPIO.start_link(pin_b, :output)
