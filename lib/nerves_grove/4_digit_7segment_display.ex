@@ -30,7 +30,7 @@ defmodule Nerves.Grove.Display4_7 do
   end
 
   @type numbers() :: %{a: integer(), b: integer(), c: integer(), d: integer()}
-  def ask_number(a, b, c, d) do
+  def set_number(a, b, c, d) do
     numbers = %{a: a, b: b, c: c, d: d}
 
     task_pid =
@@ -114,7 +114,7 @@ defmodule Nerves.Grove.Display4_7 do
         exit(:shutdown)
     end
 
-    Process.sleep(300)
+    Process.sleep(100)
     loop(main_pids, segment_pids, numbers)
   end
 end
