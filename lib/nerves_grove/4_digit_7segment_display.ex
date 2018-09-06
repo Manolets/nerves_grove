@@ -6,10 +6,9 @@ defmodule Nerves.Grove.Display4_7 do
 
   @type main_pids() :: %{one: pid(), two: pid(), three: pid(), four: pid()}
   @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid()}
+  start_link(0)
 
   def set_main_pins(pin_1, pin_2, pin_3, pin_4) do
-    start_link(0)
-
     {:ok, one} = GPIO.start_link(pin_1, :output)
     {:ok, two} = GPIO.start_link(pin_2, :output)
     {:ok, three} = GPIO.start_link(pin_3, :output)
@@ -96,8 +95,6 @@ defmodule Nerves.Grove.Display4_7 do
 
     GPIO.write(main_pids.four, 0)
     write_number(main_pids, segment_pids, numbers.d)
-
-    print_number(main_pids, segment_pids, numbers)
   end
 
   def send_stop(pid) do
@@ -114,7 +111,6 @@ defmodule Nerves.Grove.Display4_7 do
         exit(:shutdown)
     end
 
-    Process.sleep(100)
     loop(main_pids, segment_pids, numbers)
   end
 end
