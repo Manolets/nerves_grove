@@ -14,6 +14,8 @@ defmodule Nerves.Grove.OneNumberLeds do
     {:ok, g} = GPIO.start_link(pin_g, :output)
 
     pids = %{a: a, b: b, c: c, d: d, e: e, f: f, g: g}
+
+    Logger.debug("Inspeccionando PIDs #{inspect(pids)}")
     pids
   end
 
