@@ -52,16 +52,9 @@ defmodule Nerves.Grove.Display4_7 do
     send(pid, :stop)
   end
 
-  def new_digit(main_pids) do
-    GPIO.write(main_pids.one, 1)
-    GPIO.write(main_pids.two, 1)
-    GPIO.write(main_pids.three, 1)
-    GPIO.write(main_pids.four, 1)
-  end
+  defp write_number(main_pids, segment_pids, digit) do
 
-  defp write_number(main_pids, segment_pids, numbers) do
-
-    case numbers do
+    case digit do
       0 ->
         zero(segment_pids)
 
@@ -92,22 +85,22 @@ defmodule Nerves.Grove.Display4_7 do
       9 ->
         nine(segment_pids)
     end
-    new_digit(main_pids)
 
   end
 
-  defp display_digits(main_pids, segment_pids, numbers) do
+  defp display_digits(main_pids, segment_pids, digits) do
     GPIO.write(main_pids.one, 0)
-    write_number(main_pids, segment_pids, numbers.a)
-
+    write_number(main_pids, segment_pids, digits.a)
+    GPIO.write(main_pids.one, 1)
     GPIO.write(main_pids.two, 0)
-    write_number(main_pids, segment_pids, numbers.b)
-
+    write_number(main_pids, segment_pids, digits.b)
+    GPIO.write(main_pids.two, 0)
     GPIO.write(main_pids.three, 0)
-    write_number(main_pids, segment_pids, numbers.c)
-
+    write_number(main_pids, segment_pids, digits.c)
+    GPIO.write(main_pids.three, 0)
     GPIO.write(main_pids.four, 0)
-    write_number(main_pids, segment_pids, numbers.d)
+    write_number(main_pids, segment_pids, digits.d)
+    GPIO.write(main_pids.four, 0)
   end
 
   defp loop(main_pids, segment_pids, numbers) do
