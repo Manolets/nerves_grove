@@ -82,45 +82,45 @@ defmodule Nerves.Grove.OneNumberLeds do
   def five(pids) do
     new(pids)
     GPIO.write(pids.a, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
     GPIO.write(pids.c, 1)
     GPIO.write(pids.d, 1)
+    GPIO.write(pids.f, 1)
+    GPIO.write(pids.g, 1)
   end
 
   def six(pids) do
     new(pids)
     GPIO.write(pids.a, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
     GPIO.write(pids.c, 1)
     GPIO.write(pids.d, 1)
     GPIO.write(pids.e, 1)
+    GPIO.write(pids.f, 1)
+    GPIO.write(pids.g, 1)
   end
 
   def seven(pids) do
     new(pids)
+    GPIO.write(pids.a, 1)
     GPIO.write(pids.b, 1)
     GPIO.write(pids.c, 1)
-    GPIO.write(pids.a, 1)
   end
 
   def eight(pids) do
     new(pids)
     GPIO.write(pids.a, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
+    GPIO.write(pids.b, 1)
     GPIO.write(pids.c, 1)
     GPIO.write(pids.d, 1)
     GPIO.write(pids.e, 1)
-    GPIO.write(pids.b, 1)
+    GPIO.write(pids.f, 1)
+    GPIO.write(pids.g, 1)
   end
 
   def nine(pids) do
     new(pids)
+    GPIO.write(pids.a, 1)
     GPIO.write(pids.b, 1)
     GPIO.write(pids.c, 1)
-    GPIO.write(pids.a, 1)
     GPIO.write(pids.f, 1)
     GPIO.write(pids.g, 1)
   end
