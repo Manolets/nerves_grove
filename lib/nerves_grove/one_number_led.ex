@@ -2,9 +2,9 @@ defmodule Nerves.Grove.OneNumberLeds do
   require Logger
   alias ElixirALE.GPIO
 
-  @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid()}
+  @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid(), h: pid()}
 
-  def set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g) do
+  def set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
     {:ok, a} = GPIO.start_link(pin_a, :output)
     {:ok, b} = GPIO.start_link(pin_b, :output)
     {:ok, c} = GPIO.start_link(pin_c, :output)
@@ -12,15 +12,16 @@ defmodule Nerves.Grove.OneNumberLeds do
     {:ok, e} = GPIO.start_link(pin_e, :output)
     {:ok, f} = GPIO.start_link(pin_f, :output)
     {:ok, g} = GPIO.start_link(pin_g, :output)
+    {:ok, h} = GPIO.start_link(pin_h, :output)
 
-    pids = %{a: a, b: b, c: c, d: d, e: e, f: f, g: g}
+    pids = %{a: a, b: b, c: c, d: d, e: e, f: f, g: g, h: h}
 
     Logger.debug("Inspeccionando PIDs #{inspect(pids)}")
+
     pids
   end
 
-  @spec new(atom() | %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid()}) ::
-          :ok | {:error, any()}
+
   def new(pids) do
     GPIO.write(pids.a, 0)
     GPIO.write(pids.b, 0)
@@ -29,6 +30,11 @@ defmodule Nerves.Grove.OneNumberLeds do
     GPIO.write(pids.e, 0)
     GPIO.write(pids.f, 0)
     GPIO.write(pids.g, 0)
+    GPIO.write(pids.h, 0)
+  end
+
+  def decimalp(pids) do
+    GPIO.write(pids.h, 1)
   end
 
   def zero(pids) do

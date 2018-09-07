@@ -15,7 +15,7 @@ defmodule Nerves.Grove.Display4_7 do
   import Nerves.Grove.PidServer
 
   @type main_pids() :: %{one: pid(), two: pid(), three: pid(), four: pid()}
-  @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid()}
+  @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid(), h: pid()}
   @type numbers() :: %{a: integer(), b: integer(), c: integer(), d: integer()}
 
   def set_main_pins(pin_1, pin_2, pin_3, pin_4) do
@@ -30,8 +30,8 @@ defmodule Nerves.Grove.Display4_7 do
     main_pids
   end
 
-  def set_segment_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g) do
-    segment_pids = set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g)
+  def set_segment_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
+    segment_pids = set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h)
     put_pids(:spids, segment_pids)
 
     segment_pids
@@ -60,7 +60,6 @@ defmodule Nerves.Grove.Display4_7 do
   end
 
   defp write_number(main_pids, segment_pids, numbers) do
-    new_digit(main_pids)
 
     case numbers do
       0 ->
@@ -93,6 +92,8 @@ defmodule Nerves.Grove.Display4_7 do
       9 ->
         nine(segment_pids)
     end
+    new_digit(main_pids)
+
   end
 
   defp display_digits(main_pids, segment_pids, numbers) do
