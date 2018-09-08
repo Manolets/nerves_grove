@@ -7,6 +7,13 @@ defmodule Nerves.Grove.Display4_7 do
     {:ok, pid} = Display4_7.set_number(0, 1, 2, 3)
     Display4_7.send_stop(pid)
     RingLogger.attach
+
+    To open each digit manually:
+    alias ElixirALE.GPIO
+    {:ok, pidm1} = GPIO.start_link(21, :output)
+    {:ok, pidm2} = GPIO.start_link(20, :output)
+    {:ok, pidm3} = GPIO.start_link(5, :output)
+    {:ok, pidm4} = GPIO.start_link(13, :output)
   """
 
   require Logger
