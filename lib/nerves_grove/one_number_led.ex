@@ -1,127 +1,114 @@
 defmodule Nerves.Grove.OneNumberLeds do
+  @moduledoc """
+          [a,b,c,d,e,f,g,h]
+  null =  [0,0,0,0,0,0,0,0]
+  zero =  [1,1,1,1,1,1,0,0]
+  one =   [0,1,1,0,0,0,0,0]
+  two =   [1,1,0,0,1,0,1,0]
+  three = [1,1,1,1,0,0,1,0]
+  four =  [0,1,1,0,0,1,1,0]
+          [a,b,c,d,e,f,g,h]
+  five =  [1,0,1,1,0,1,1,0]
+  six =   [1,0,1,1,1,1,1,0]
+  seven = [1,1,1,0,0,0,0,0]
+  eight = [1,1,1,1,1,1,1,0]
+  nine =  [1,1,1,1,0,1,1,0]
+  A =     [1,1,1,0,1,1,1,0]
+          [a,b,c,d,e,f,g,h]
+  String.to_integer("FC", 16)|>Integer.digits(2)
+  c "lib/kv/display/comprehensions.ex"
+  """
   require Logger
+  import Nerves.Grove.PidServer
   alias ElixirALE.GPIO
 
-  @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid(), h: pid()}
+  # 0~9
+  @digits_code %{
+    zero: 0xFC,
+    one: 0x60,
+    two: 0xCA,
+    tree: 0xF2,
+    four: 0x64,
+    five: 0xB6,
+    six: 0xBE,
+    seven: 0xE0,
+    eight: 0xFE,
+    nine: 0xF6,
+    A: 0x77
+  }
+  @pins_code [:a, :b, :c, :d, :e, :f, :g, :h]
 
+  @doc """
+    Kv.Display.Comprehension.set_pins(0,1,2,3,4,5,6,7)
+    c "lib/kv/display/comprehensions.ex"
+  """
   def set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
-    {:ok, a} = GPIO.start_link(pin_a, :output)
-    {:ok, b} = GPIO.start_link(pin_b, :output)
-    {:ok, c} = GPIO.start_link(pin_c, :output)
-    {:ok, d} = GPIO.start_link(pin_d, :output)
-    {:ok, e} = GPIO.start_link(pin_e, :output)
-    {:ok, f} = GPIO.start_link(pin_f, :output)
-    {:ok, g} = GPIO.start_link(pin_g, :output)
-    {:ok, h} = GPIO.start_link(pin_h, :output)
+    Logger.debug("Starting agent#{inspect(start())}")
+    input_pins = [pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h]
 
-    pids = %{a: a, b: b, c: c, d: d, e: e, f: f, g: g, h: h}
+    digit_pids =
+      for n <- 0..7 do
+        input_pin = input_pins |> Enum.at(n)
+        pin_code = @pins_code |> Enum.at(n)
+        {:ok, digit_pid} = GPIO.start_link(input_pin, :output)
+        {pin_code, digit_pid}
+        # digit_pid = input_pins |> Enum.at(n)
+        # pin_code = @pins_code |> Enum.at(n)
+        # {pin_code, digit_pid}
+      end
 
-    Logger.debug("Inspeccionando PIDs #{inspect(pids)}")
-
-    pids
+    ### Save digit_pids into actor
+    put_pids(:digit_pids, digit_pids)
+    Logger.info("digit_pids#{inspect(digit_pids)}")
+    digit_pids
   end
 
-
-  def new(pids) do
-    GPIO.write(pids.a, 0)
-    GPIO.write(pids.b, 0)
-    GPIO.write(pids.c, 0)
-    GPIO.write(pids.d, 0)
-    GPIO.write(pids.e, 0)
-    GPIO.write(pids.f, 0)
-    GPIO.write(pids.g, 0)
-    GPIO.write(pids.h, 0)
+  @doc """
+    alias Kv.Display.Comprehension
+    digit_pids = Comprehension.set_pins(0,1,2,3,4,5,6,7)
+    Comprehension.clear_all(digit_pids,Comprehension.@digits_code.eight)
+  """
+  def clear(digit_pids) do
+    Enum.each(digit_pids, fn digit_pid ->
+      GPIO.write(digit_pid, 0)
+      # Logger.info("digit_pid#{inspect(digit_pid)}")
+    end)
   end
 
-  def decimalp(pids) do
-    GPIO.write(pids.h, 1)
+  @doc """
+    c "lib/kv/display/comprehensions.ex"
+    alias Kv.Display.Comprehension
+    digit_pids = Comprehension.set_pins("a", "b", "c", "d", "e", "f", "g", "h")
+    Comprehension.write(digit_pids,:eight)
+  """
+  def write(digit_pids, digit) do
+    digit_bits = @digits_code[digit] |> Integer.digits(2)
+
+    for n <- 0..7 do
+      digit_bit = digit_bits |> Enum.at(n)
+      pid = digit_pids |> Enum.at(n) |> Kernel.elem(1)
+
+      if 1 == digit_bit do
+        # Logger.info("pid#{inspect(pid)} to 1")
+        GPIO.write(pid, 1)
+      else
+        # Logger.info("pid#{inspect(pid)} to 0")
+        GPIO.write(pid, 0)
+      end
+    end
   end
 
-  def zero(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.c, 1)
-    GPIO.write(pids.d, 1)
-    GPIO.write(pids.e, 1)
-    GPIO.write(pids.f, 1)
-  end
-
-  def one(pids) do
-    new(pids)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.c, 1)
-  end
-
-  def two(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.e, 1)
-    GPIO.write(pids.g, 1)
-    GPIO.write(pids.d, 1)
-  end
-
-  def three(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.c, 1)
-    GPIO.write(pids.d, 1)
-    GPIO.write(pids.g, 1)
-  end
-
-  def four(pids) do
-    new(pids)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.c, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
-  end
-
-  def five(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.c, 1)
-    GPIO.write(pids.d, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
-  end
-
-  def six(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.c, 1)
-    GPIO.write(pids.d, 1)
-    GPIO.write(pids.e, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
-  end
-
-  def seven(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.c, 1)
-  end
-
-  def eight(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.c, 1)
-    GPIO.write(pids.d, 1)
-    GPIO.write(pids.e, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
-  end
-
-  def nine(pids) do
-    new(pids)
-    GPIO.write(pids.a, 1)
-    GPIO.write(pids.b, 1)
-    GPIO.write(pids.c, 1)
-    GPIO.write(pids.f, 1)
-    GPIO.write(pids.g, 1)
+  @doc """
+    c "lib/kv/display/comprehensions.ex"
+    alias Kv.Display.Comprehension
+    digit_pids = Comprehension.set_pins("a", "b", "c", "d", "e", "f", "g", "h")
+    Comprehension.release()
+  """
+  def release() do
+    get_pids(:digit_pids)
+    |> Enum.each(fn digit_pid ->
+      # Logger.info("pid#{inspect(digit_pid |> Kernel.elem(1))}}")
+      GPIO.release(digit_pid)
+    end)
   end
 end

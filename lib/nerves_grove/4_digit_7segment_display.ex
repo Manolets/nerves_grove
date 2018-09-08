@@ -15,7 +15,16 @@ defmodule Nerves.Grove.Display4_7 do
   import Nerves.Grove.PidServer
 
   @type main_pids() :: %{one: pid(), two: pid(), three: pid(), four: pid()}
-  @type pids() :: %{a: pid(), b: pid(), c: pid(), d: pid(), e: pid(), f: pid(), g: pid(), h: pid()}
+  @type pids() :: %{
+          a: pid(),
+          b: pid(),
+          c: pid(),
+          d: pid(),
+          e: pid(),
+          f: pid(),
+          g: pid(),
+          h: pid()
+        }
   @type numbers() :: %{a: integer(), b: integer(), c: integer(), d: integer()}
 
   def set_main_pins(pin_1, pin_2, pin_3, pin_4) do
@@ -23,7 +32,7 @@ defmodule Nerves.Grove.Display4_7 do
     {:ok, two} = GPIO.start_link(pin_2, :output)
     {:ok, three} = GPIO.start_link(pin_3, :output)
     {:ok, four} = GPIO.start_link(pin_4, :output)
-    Logger.debug("Starting agent#{inspect(start_link(0))}")
+
     main_pids = %{one: one, two: two, three: three, four: four}
     put_pids(:mpids, main_pids)
 
@@ -39,10 +48,11 @@ defmodule Nerves.Grove.Display4_7 do
 
   def set_number(a, b, c, d) do
     numbers = %{a: a, b: b, c: c, d: d}
+
     task_pid =
       Task.start(fn ->
         Logger.debug("numbers #{inspect(numbers)}")
-        loop(take_pids(:mpids), take_pids(:spids), numbers)
+        loop(get_pids(:mpids), get_pids(:spids), numbers)
       end)
 
     task_pid
@@ -52,54 +62,55 @@ defmodule Nerves.Grove.Display4_7 do
     send(pid, :stop)
   end
 
-  defp write_number(main_pids, segment_pids, digit) do
-
+  defp write_number(segment_pids, digit) do
     case digit do
       0 ->
-        zero(segment_pids)
+        write(segment_pids, :zero)
 
       1 ->
-        one(segment_pids)
+        write(segment_pids, :one)
 
       2 ->
-        two(segment_pids)
+        write(segment_pids, :two)
 
       3 ->
-        three(segment_pids)
+        write(segment_pids, :three)
 
       4 ->
-        four(segment_pids)
+        write(segment_pids, :four)
 
       5 ->
-        five(segment_pids)
+        write(segment_pids, :five)
 
       6 ->
-        six(segment_pids)
+        write(segment_pids, :six)
 
       7 ->
-        seven(segment_pids)
+        write(segment_pids, :seven)
 
       8 ->
-        eight(segment_pids)
+        write(segment_pids, :eight)
 
       9 ->
-        nine(segment_pids)
-    end
+        write(segment_pids, :nine)
 
+      A ->
+        write(segment_pids, :A)
+    end
   end
 
   defp display_digits(main_pids, segment_pids, digits) do
     GPIO.write(main_pids.one, 0)
-    write_number(main_pids, segment_pids, digits.a)
+    write_number(segment_pids, digits.a)
     GPIO.write(main_pids.one, 1)
     GPIO.write(main_pids.two, 0)
-    write_number(main_pids, segment_pids, digits.b)
+    write_number(segment_pids, digits.b)
     GPIO.write(main_pids.two, 0)
     GPIO.write(main_pids.three, 0)
-    write_number(main_pids, segment_pids, digits.c)
+    write_number(segment_pids, digits.c)
     GPIO.write(main_pids.three, 0)
     GPIO.write(main_pids.four, 0)
-    write_number(main_pids, segment_pids, digits.d)
+    write_number(segment_pids, digits.d)
     GPIO.write(main_pids.four, 0)
   end
 
