@@ -4,7 +4,7 @@ defmodule Nerves.Grove.OneNumberLeds do
   null =  [0,0,0,0,0,0,0,0]
   zero =  [1,1,1,1,1,1,0,0]
   one =   [0,1,1,0,0,0,0,0]
-  two =   [1,1,0,0,1,0,1,0]
+  two =   [1,1,0,1,1,0,1,0]
   three = [1,1,1,1,0,0,1,0]
   four =  [0,1,1,0,0,1,1,0]
           [a,b,c,d,e,f,g,h]
@@ -26,24 +26,24 @@ defmodule Nerves.Grove.OneNumberLeds do
   @digits_code %{
     zero: 0xFC,
     one: 0x60,
-    two: 0xCA,
-    tree: 0xF2,
-    four: 0x64,
+    two: 0xDA,
+    three: 0xF2,
+    four: 0x66,
     five: 0xB6,
     six: 0xBE,
     seven: 0xE0,
     eight: 0xFE,
     nine: 0xF6,
-    A: 0x77
+    A: 0xEE
   }
   @pins_code [:a, :b, :c, :d, :e, :f, :g, :h]
 
   @doc """
-    Kv.Display.Comprehension.set_pins(0,1,2,3,4,5,6,7)
-    c "lib/kv/display/comprehensions.ex"
+  c "lib/kv/display/comprehensions.ex"
+  Nerves.Grove.OneNumberLeds.set_pins(17, 18, 27, 23, 22, 24, 25, 13)
   """
   def set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
-    Logger.debug("Starting agent#{inspect(start())}")
+    Logger.debug("Starting agent pid_server #{inspect(start())}")
     input_pins = [pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h]
 
     digit_pids =
@@ -64,7 +64,7 @@ defmodule Nerves.Grove.OneNumberLeds do
   end
 
   @doc """
-    alias Kv.Display.Comprehension
+    alias Nerves.Grove.OneNumberLeds
     digit_pids = Comprehension.set_pins(0,1,2,3,4,5,6,7)
     Comprehension.clear_all(digit_pids,Comprehension.@digits_code.eight)
   """
@@ -77,7 +77,7 @@ defmodule Nerves.Grove.OneNumberLeds do
 
   @doc """
     c "lib/kv/display/comprehensions.ex"
-    alias Kv.Display.Comprehension
+    alias Nerves.Grove.OneNumberLeds
     digit_pids = Comprehension.set_pins("a", "b", "c", "d", "e", "f", "g", "h")
     Comprehension.write(digit_pids,:eight)
   """
@@ -100,7 +100,7 @@ defmodule Nerves.Grove.OneNumberLeds do
 
   @doc """
     c "lib/kv/display/comprehensions.ex"
-    alias Kv.Display.Comprehension
+    alias Nerves.Grove.OneNumberLeds
     digit_pids = Comprehension.set_pins("a", "b", "c", "d", "e", "f", "g", "h")
     Comprehension.release()
   """

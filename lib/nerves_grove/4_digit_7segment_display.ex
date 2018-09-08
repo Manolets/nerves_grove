@@ -2,11 +2,11 @@ defmodule Nerves.Grove.Display4_7 do
   @moduledoc """
     Use this module
     alias Nerves.Grove.Display4_7
-    Display4_7.set_main_pins(20, 21,  5, 6)
-    Display4_7.set_segment_pins(17, 18, 27, 23, 22, 24, 25)
-    RingLogger.attach
-    {:ok, pid} = Display4_7.set_number(1, 2, 3, 4)
+    Display4_7.set_main_pins(21, 20, 5, 13)
+    Display4_7.set_segment_pins(17, 18, 27, 23, 22, 24, 25, 6)
+    {:ok, pid} = Display4_7.set_number(0, 1, 2, 3)
     Display4_7.send_stop(pid)
+    RingLogger.attach
   """
 
   require Logger
@@ -28,6 +28,7 @@ defmodule Nerves.Grove.Display4_7 do
   @type numbers() :: %{a: integer(), b: integer(), c: integer(), d: integer()}
 
   def set_main_pins(pin_1, pin_2, pin_3, pin_4) do
+    Logger.debug("Starting agent pid_server #{inspect(start())}")
     {:ok, one} = GPIO.start_link(pin_1, :output)
     {:ok, two} = GPIO.start_link(pin_2, :output)
     {:ok, three} = GPIO.start_link(pin_3, :output)
@@ -40,6 +41,7 @@ defmodule Nerves.Grove.Display4_7 do
   end
 
   def set_segment_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
+    Logger.debug("Starting agent pid_server #{inspect(start())}")
     segment_pids = set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h)
     put_pids(:spids, segment_pids)
 
