@@ -25,7 +25,7 @@ defmodule Nerves.Grove.Display4_7 do
           g: pid(),
           h: pid()
         }
-  @type numbers() :: %{a: integer(), b: integer(), c: integer(), d: integer()}
+  @type characters() :: %{a: integer(), b: integer(), c: integer(), d: integer()}
 
   def set_main_pins(pin_1, pin_2, pin_3, pin_4) do
     Logger.debug("Starting agent pid_server #{inspect(start())}")
@@ -49,12 +49,12 @@ defmodule Nerves.Grove.Display4_7 do
   end
 
   def set_number(a, b, c, d) do
-    numbers = %{a: a, b: b, c: c, d: d}
+    characters = %{a: a, b: b, c: c, d: d}
 
     task_pid =
       Task.start(fn ->
-        Logger.debug("numbers #{inspect(numbers)}")
-        loop(get_pids(:mpids), get_pids(:spids), numbers)
+        Logger.debug("characters #{inspect(characters)}")
+        loop(get_pids(:mpids), get_pids(:spids), characters)
       end)
 
     task_pid
@@ -64,7 +64,7 @@ defmodule Nerves.Grove.Display4_7 do
     send(pid, :stop)
   end
 
-  defp write_number(segment_pids, digit) do
+  defp write_character(segment_pids, digit) do
     case digit do
       0 ->
         write(segment_pids, :zero)
@@ -101,22 +101,22 @@ defmodule Nerves.Grove.Display4_7 do
     end
   end
 
-  defp display_digits(main_pids, segment_pids, digits) do
+  defp display_characters(main_pids, segment_pids, characters) do
     GPIO.write(main_pids.one, 0)
-    write_number(segment_pids, digits.a)
+    write_character(segment_pids, characters.a)
     GPIO.write(main_pids.one, 1)
     GPIO.write(main_pids.two, 0)
-    write_number(segment_pids, digits.b)
-    GPIO.write(main_pids.two, 0)
+    write_character(segment_pids, characters.b)
+    GPIO.write(main_pids.two, 1)
     GPIO.write(main_pids.three, 0)
-    write_number(segment_pids, digits.c)
-    GPIO.write(main_pids.three, 0)
+    write_character(segment_pids, characters.c)
+    GPIO.write(main_pids.three, 1)
     GPIO.write(main_pids.four, 0)
-    write_number(segment_pids, digits.d)
-    GPIO.write(main_pids.four, 0)
+    write_character(segment_pids, characters.d)
+    GPIO.write(main_pids.four, 1)
   end
 
-  defp loop(main_pids, segment_pids, numbers) do
+  defp loop(main_pids, segment_pids, characters) do
     Logger.debug("Into the execution loop....")
 
     receive do
@@ -129,7 +129,7 @@ defmodule Nerves.Grove.Display4_7 do
       3_000 -> :timeout
     end
 
-    display_digits(main_pids, segment_pids, numbers)
-    loop(main_pids, segment_pids, numbers)
+    display_characters(main_pids, segment_pids, characters)
+    loop(main_pids, segment_pids, characters)
   end
 end

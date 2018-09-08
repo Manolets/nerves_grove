@@ -24,6 +24,7 @@ defmodule Nerves.Grove.OneNumberLeds do
 
   # 0~9
   @digits_code %{
+    null: 0x00,
     zero: 0xFC,
     one: 0x60,
     two: 0xDA,
