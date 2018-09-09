@@ -10,18 +10,18 @@ defmodule Nerves.Grove.Display4_7 do
 
     To open each digit manually:
     alias ElixirALE.GPIO
-    {:ok, pidm1} = GPIO.start_link(21, :output)
-    {:ok, pidm2} = GPIO.start_link(20, :output)
-    {:ok, pidm3} = GPIO.start_link(5, :output)
-    {:ok, pidm4} = GPIO.start_link(13, :output)
+    {:ok, pidm1} = GPIO.set_mode(21, :output)
+    {:ok, pidm2} = GPIO.set_mode(20, :output)
+    {:ok, pidm3} = GPIO.set_mode(5, :output)
+    {:ok, pidm4} = GPIO.set_mode(13, :output)
   """
 
   require Logger
-  alias ElixirALE.GPIO
+  alias Pigpiox.GPIO
   import Nerves.Grove.OneNumberLeds
   import Nerves.Grove.PidServer
 
-  @type main_pids() :: %{one: pid(), two: pid(), three: pid(), four: pid()}
+  @type main_pins() :: %{one: pid(), two: pid(), three: pid(), four: pid()}
   @type pids() :: %{
           a: pid(),
           b: pid(),
@@ -36,23 +36,21 @@ defmodule Nerves.Grove.Display4_7 do
 
   def set_main_pins(pin_1, pin_2, pin_3, pin_4) do
     Logger.debug("Starting agent pid_server #{inspect(start())}")
-    {:ok, one} = GPIO.start_link(pin_1, :output)
-    {:ok, two} = GPIO.start_link(pin_2, :output)
-    {:ok, three} = GPIO.start_link(pin_3, :output)
-    {:ok, four} = GPIO.start_link(pin_4, :output)
+    GPIO.set_mode(pin_1, :output)
+    GPIO.set_mode(pin_2, :output)
+    GPIO.set_mode(pin_3, :output)
+    GPIO.set_mode(pin_4, :output)
 
-    main_pids = %{one: one, two: two, three: three, four: four}
-    put_pids(:mpids, main_pids)
-
-    main_pids
+    main_pins = %{one: pin_1, two: pin_2, three: pin_3, four: pin_4}
+    put_pids(:mpins, main_pins)
   end
 
   def set_segment_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
     Logger.debug("Starting agent pid_server #{inspect(start())}")
-    segment_pids = set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h)
-    put_pids(:spids, segment_pids)
+    segment_pins = set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h)
+    put_pids(:spins, segment_pins)
 
-    segment_pids
+    segment_pins
   end
 
   def set_number(a, b, c, d) do
@@ -61,7 +59,7 @@ defmodule Nerves.Grove.Display4_7 do
     task_pid =
       Task.start(fn ->
         Logger.debug("characters #{inspect(characters)}")
-        loop(get_pids(:mpids), get_pids(:spids), characters)
+        loop(get_pids(:mpins), get_pids(:spins), characters)
       end)
 
     task_pid
@@ -71,59 +69,57 @@ defmodule Nerves.Grove.Display4_7 do
     send(pid, :stop)
   end
 
-  defp write_character(segment_pids, digit) do
+  defp write_character(segment_pins, digit) do
     case digit do
       0 ->
-        write(segment_pids, :zero)
+        write(segment_pins, :zero)
 
       1 ->
-        write(segment_pids, :one)
+        write(segment_pins, :one)
 
       2 ->
-        write(segment_pids, :two)
+        write(segment_pins, :two)
 
       3 ->
-        write(segment_pids, :three)
+        write(segment_pins, :three)
 
       4 ->
-        write(segment_pids, :four)
+        write(segment_pins, :four)
 
       5 ->
-        write(segment_pids, :five)
+        write(segment_pins, :five)
 
       6 ->
-        write(segment_pids, :six)
+        write(segment_pins, :six)
 
       7 ->
-        write(segment_pids, :seven)
+        write(segment_pins, :seven)
 
       8 ->
-        write(segment_pids, :eight)
+        write(segment_pins, :eight)
 
       9 ->
-        write(segment_pids, :nine)
+        write(segment_pins, :nine)
 
       A ->
-        write(segment_pids, :A)
+        write(segment_pins, :A)
     end
   end
 
-  defp display_characters(main_pids, segment_pids, characters) do
-    GPIO.write(main_pids.one, 0)
-    write_character(segment_pids, characters.a)
-    GPIO.write(main_pids.one, 1)
-    GPIO.write(main_pids.two, 0)
-    write_character(segment_pids, characters.b)
-    GPIO.write(main_pids.two, 1)
-    GPIO.write(main_pids.three, 0)
-    write_character(segment_pids, characters.c)
-    GPIO.write(main_pids.three, 1)
-    GPIO.write(main_pids.four, 0)
-    write_character(segment_pids, characters.d)
-    GPIO.write(main_pids.four, 1)
+  defp display_characters(main_pins, segment_pins, characters) do
+    write_char_safe(main_pins.one, segment_pins, characters.a)
+    write_char_safe(main_pins.two, segment_pins, characters.b)
+    write_char_safe(main_pins.three, segment_pins, characters.c)
+    write_char_safe(main_pins.four, segment_pins, characters.d)
   end
 
-  defp loop(main_pids, segment_pids, characters) do
+  defp write_char_safe(pin, segment_pins, charater) do
+    GPIO.write(pin, 0)
+    write_character(segment_pins, charater)
+    GPIO.write(pin, 1)
+  end
+
+  defp loop(main_pins, segment_pins, characters) do
     Logger.debug("Into the execution loop....")
 
     receive do
@@ -136,7 +132,7 @@ defmodule Nerves.Grove.Display4_7 do
       3_000 -> :timeout
     end
 
-    display_characters(main_pids, segment_pids, characters)
-    loop(main_pids, segment_pids, characters)
+    display_characters(main_pins, segment_pins, characters)
+    loop(main_pins, segment_pins, characters)
   end
 end

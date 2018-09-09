@@ -20,7 +20,7 @@ defmodule Nerves.Grove.OneNumberLeds do
   """
   require Logger
   import Nerves.Grove.PidServer
-  alias ElixirALE.GPIO
+  alias Pigpiox.GPIO
 
   # 0~9
   @digits_code %{
@@ -44,24 +44,17 @@ defmodule Nerves.Grove.OneNumberLeds do
   Nerves.Grove.OneNumberLeds.set_pins(17, 18, 27, 23, 22, 24, 25, 13)
   """
   def set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
-    Logger.debug("Starting agent pid_server #{inspect(start())}")
     input_pins = [pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h]
 
-    digit_pids =
+    segment_pins =
       for n <- 0..7 do
         input_pin = input_pins |> Enum.at(n)
         pin_code = @pins_code |> Enum.at(n)
-        {:ok, digit_pid} = GPIO.start_link(input_pin, :output)
-        {pin_code, digit_pid}
-        # digit_pid = input_pins |> Enum.at(n)
-        # pin_code = @pins_code |> Enum.at(n)
-        # {pin_code, digit_pid}
+        GPIO.set_mode(input_pin, :output)
+        {pin_code, input_pin}
       end
 
-    ### Save digit_pids into actor
-    put_pids(:digit_pids, digit_pids)
-    Logger.info("digit_pids#{inspect(digit_pids)}")
-    digit_pids
+    segment_pins
   end
 
   @doc """
@@ -72,7 +65,6 @@ defmodule Nerves.Grove.OneNumberLeds do
   def clear(digit_pids) do
     Enum.each(digit_pids, fn digit_pid ->
       GPIO.write(digit_pid, 0)
-      # Logger.info("digit_pid#{inspect(digit_pid)}")
     end)
   end
 
@@ -97,19 +89,5 @@ defmodule Nerves.Grove.OneNumberLeds do
         GPIO.write(pid, 0)
       end
     end
-  end
-
-  @doc """
-    c "lib/kv/display/comprehensions.ex"
-    alias Nerves.Grove.OneNumberLeds
-    digit_pids = Comprehension.set_pins("a", "b", "c", "d", "e", "f", "g", "h")
-    Comprehension.release()
-  """
-  def release() do
-    get_pids(:digit_pids)
-    |> Enum.each(fn digit_pid ->
-      # Logger.info("pid#{inspect(digit_pid |> Kernel.elem(1))}}")
-      GPIO.release(digit_pid)
-    end)
   end
 end

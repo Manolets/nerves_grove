@@ -51,7 +51,7 @@ defmodule Nerves.Grove.Sensor.Keypad do
       {pin_code, row_pid}
     end
 
-    #GpioRpi.release()
+    # GpioRpi.release()
   end
 
   def send_stop(pid) do
