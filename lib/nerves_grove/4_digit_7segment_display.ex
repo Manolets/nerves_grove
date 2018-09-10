@@ -1,19 +1,19 @@
 defmodule Nerves.Grove.Display4_7 do
   @moduledoc """
     Use this module
+    RingLogger.attach
     alias Nerves.Grove.Display4_7
     Display4_7.set_main_pins(21, 20, 5, 13)
     Display4_7.set_segment_pins(17, 18, 27, 23, 22, 24, 25, 6)
-    {:ok, pid} = Display4_7.set_number(0, 1, 2, 3)
-    Display4_7.send_stop(pid)
-    RingLogger.attach
-
+    {:ok, child} = Display4_7.display_digits(0, 1, 2, 3)
+    Display4_7.send_stop(child)
+    c ("lib/nerves_grove/4_digit_7segment_display.ex")
     To open each digit manually:
     alias ElixirALE.GPIO
-    {:ok, pidm1} = GPIO.set_mode(21, :output)
-    {:ok, pidm2} = GPIO.set_mode(20, :output)
-    {:ok, pidm3} = GPIO.set_mode(5, :output)
-    {:ok, pidm4} = GPIO.set_mode(13, :output)
+    GPIO.set_mode(21, :output)
+    GPIO.set_mode(20, :output)
+    GPIO.set_mode(5, :output)
+    GPIO.set_mode(13, :output)
   """
 
   require Logger
@@ -36,31 +36,37 @@ defmodule Nerves.Grove.Display4_7 do
 
   def set_main_pins(pin_1, pin_2, pin_3, pin_4) do
     Logger.debug("Starting agent pid_server #{inspect(start())}")
-    GPIO.set_mode(pin_1, :output)
-    GPIO.set_mode(pin_2, :output)
-    GPIO.set_mode(pin_3, :output)
-    GPIO.set_mode(pin_4, :output)
-
     main_pins = %{one: pin_1, two: pin_2, three: pin_3, four: pin_4}
     put_pids(:mpins, main_pins)
+
+    for {key, val} <- main_pins do
+      GPIO.set_mode(val, :output)
+      Logger.info("key:#{inspect(key)} pin :#{inspect(val)}")
+    end
   end
 
   def set_segment_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h) do
     Logger.debug("Starting agent pid_server #{inspect(start())}")
-    segment_pins = set_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h)
+    segment_pins = set_one_segment_pins(pin_a, pin_b, pin_c, pin_d, pin_e, pin_f, pin_g, pin_h)
     put_pids(:spins, segment_pins)
 
     segment_pins
   end
 
-  def set_number(a, b, c, d) do
+  def display_digits(a, b, c, d) do
     characters = %{a: a, b: b, c: c, d: d}
 
     task_pid =
-      Task.start(fn ->
-        Logger.debug("characters #{inspect(characters)}")
-        loop(get_pids(:mpins), get_pids(:spins), characters)
-      end)
+      Supervisor.start_link(
+        [
+          {Task,
+           fn ->
+             Logger.debug("characters #{inspect(characters)}")
+             loop(get_pids(:mpins), get_pids(:spins), characters)
+           end}
+        ],
+        strategy: :one_for_one
+      )
 
     task_pid
   end
@@ -120,16 +126,16 @@ defmodule Nerves.Grove.Display4_7 do
   end
 
   defp loop(main_pins, segment_pins, characters) do
-    Logger.debug("Into the execution loop....")
+    # Logger.debug("Into the execution loop ....")
 
     receive do
       :stop ->
-        IO.puts("Stopping...")
+        Logger.debug("Stopping...")
         Process.sleep(100)
         exit(:shutdown)
     after
       # Optional timeout
-      3_000 -> :timeout
+      1_0 -> :timeout
     end
 
     display_characters(main_pins, segment_pins, characters)
