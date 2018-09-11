@@ -5,8 +5,8 @@ defmodule Nerves.Grove.Display4_7 do
     alias Nerves.Grove.Display4_7
     Display4_7.set_main_pins(21, 20, 5, 13)
     Display4_7.set_segment_pins(17, 18, 27, 23, 22, 24, 25, 6)
-    {:ok, child} = Display4_7.display_digits(0, 1, 2, 3)
-    Display4_7.send_stop(child)
+    {:ok, supp} = Display4_7.display_digits(0, 1, 2, 3)
+    Display4_7.send_stop(supp)
     c ("lib/nerves_grove/4_digit_7segment_display.ex")
     To open each digit manually:
     alias ElixirALE.GPIO
@@ -57,16 +57,10 @@ defmodule Nerves.Grove.Display4_7 do
     characters = %{a: a, b: b, c: c, d: d}
 
     task_pid =
-      Supervisor.start_link(
-        [
-          {Task,
-           fn ->
-             Logger.debug("characters #{inspect(characters)}")
-             loop(get_pids(:mpins), get_pids(:spins), characters)
-           end}
-        ],
-        strategy: :one_for_one
-      )
+      Task.start(fn ->
+        # Logger.debug("characters #{inspect(characters)}")
+        loop(get_pids(:mpids), get_pids(:spids), characters)
+      end)
 
     task_pid
   end
@@ -135,7 +129,7 @@ defmodule Nerves.Grove.Display4_7 do
         exit(:shutdown)
     after
       # Optional timeout
-      1_0 -> :timeout
+      2_0 -> :timeout
     end
 
     display_characters(main_pins, segment_pins, characters)

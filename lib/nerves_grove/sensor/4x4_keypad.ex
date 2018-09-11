@@ -1,5 +1,4 @@
 defmodule Nerves.Grove.Sensor.Keypad do
-
   @moduledoc """
   This code will allow you to obtain the coordinates and values of
   the keys pressed on a 4x4 keyboard
@@ -27,7 +26,7 @@ defmodule Nerves.Grove.Sensor.Keypad do
           column3: integer(),
           column4: integer()
         }
-  #@pins_code [:one, :two, :three, :four]
+  # @pins_code [:one, :two, :three, :four]
 
   def set_rows(r1, r2, r3, r4) do
     start()
@@ -60,13 +59,15 @@ defmodule Nerves.Grove.Sensor.Keypad do
 
     for n <- 0..3 do
       row_pin = row_pins |> Enum.at(n)
-      #pin_code = @pins_code |> Enum.at(n)
+      # pin_code = @pins_code |> Enum.at(n)
       Pigpiox.GPIO.set_mode(row_pin, :input)
       output = Pigpiox.GPIO.read(row_pin)
+
       if output == {:ok, 1} do
         put_pids(:rowoutput, row_pin)
       end
     end
+
     read_columns(row_pins, column_pins)
   end
 
@@ -79,13 +80,15 @@ defmodule Nerves.Grove.Sensor.Keypad do
 
     for n <- 0..3 do
       column_pin = column_pins |> Enum.at(n)
-      #pin_code = @pins_code |> Enum.at(n)
+      # pin_code = @pins_code |> Enum.at(n)
       Pigpiox.GPIO.set_mode(column_pin, :input)
       output = Pigpiox.GPIO.read(column_pin)
+
       if output == {:ok, 1} do
         put_pids(:columnoutput, column_pin)
       end
     end
+
     button_pressed(get_pids(:rowoutput), get_pids(:columnoutput))
   end
 
