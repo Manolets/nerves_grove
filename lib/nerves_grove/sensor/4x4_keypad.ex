@@ -31,20 +31,20 @@ defmodule Nerves.Grove.Sensor.Keypad do
   def set_rows(r1, r2, r3, r4) do
     start()
     row_pins = %{row1: r1, row2: r2, row3: r3, row4: r4}
-    put_pids(:rpins, row_pins)
+    put_pair(:rpins, row_pins)
     row_pins
   end
 
   def set_column(c1, c2, c3, c4) do
     column_pins = %{column1: c1, column2: c2, column3: c3, column4: c4}
-    put_pids(:cpins, column_pins)
+    put_pair(:cpins, column_pins)
     column_pins
   end
 
   def start_looking() do
     task_pid =
       Task.start(fn ->
-        loop(get_pids(:rpids), get_pids(:cpids))
+        loop(get_pair(:rpids), get_pair(:cpids))
       end)
 
     task_pid
@@ -64,7 +64,7 @@ defmodule Nerves.Grove.Sensor.Keypad do
       output = Pigpiox.GPIO.read(row_pin)
 
       if output == {:ok, 1} do
-        put_pids(:rowoutput, row_pin)
+        put_pair(:rowoutput, row_pin)
       end
     end
 
@@ -85,11 +85,11 @@ defmodule Nerves.Grove.Sensor.Keypad do
       output = Pigpiox.GPIO.read(column_pin)
 
       if output == {:ok, 1} do
-        put_pids(:columnoutput, column_pin)
+        put_pair(:columnoutput, column_pin)
       end
     end
 
-    button_pressed(get_pids(:rowoutput), get_pids(:columnoutput))
+    button_pressed(get_pair(:rowoutput), get_pair(:columnoutput))
   end
 
   def button_pressed(row, column) do

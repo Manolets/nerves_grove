@@ -20,15 +20,15 @@ defmodule Nerves.Grove.StepperMotor do
     Pigpiox.GPIO.set_mode(in3, :output)
     Pigpiox.GPIO.set_mode(in4, :output)
     pins = %{a: in1, b: in2, c: in3, d: in4}
-    put_pids(:pins, pins)
+    put_pair(:pins, pins)
   end
 
   def clockwise(steps, sleep) do
-    forward(steps, get_pids(:pins), sleep)
+    forward(steps, get_pair(:pins), sleep)
   end
 
   def forward(steps, pins, sleep) do
-    get_pids(:pins)
+    get_pair(:pins)
 
     for n <- 0..steps do
       Pigpiox.GPIO.write(pins.a, 1)
@@ -51,11 +51,11 @@ defmodule Nerves.Grove.StepperMotor do
   end
 
   def anticlockwise(steps, sleep) do
-    backward(steps, get_pids(:pins), sleep)
+    backward(steps, get_pair(:pins), sleep)
   end
 
   def backward(steps, pins, sleep) do
-    get_pids(:pins)
+    get_pair(:pins)
 
     for n <- 0..steps do
       Pigpiox.GPIO.write(pins.d, 1)
