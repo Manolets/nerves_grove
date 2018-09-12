@@ -3,14 +3,15 @@ defmodule Nerves.Grove.OneNumberLeds do
 
     String.to_integer("FC", 16)|>Integer.digits(2)
     c ("lib/nerves_grove/one_number_led.ex")
-    RingLogger.attach
+    Ring#Logger.attach
     alias Nerves.Grove.OneNumberLeds
     OneNumberLeds.set_one_segment_pins(17, 18, 27, 23, 22, 24, 25, 6)
 
 
   """
 
-  require Logger
+  # Logger
+  require
   alias Pigpiox.GPIO
 
   # 0~9
@@ -40,8 +41,8 @@ defmodule Nerves.Grove.OneNumberLeds do
       for n <- 0..7 do
         pin_code = @pins_code |> Enum.at(n)
         input_pin = input_pins |> Enum.at(n)
-        GPIO.set_mode(input_pin, :output)
-        Logger.debug("input_pin: #{input_pin}")
+        # GPIO.set_mode(input_pin, :output)
+        # Logger.debug("input_pin: #{input_pin}")
         {pin_code, input_pin}
       end
 
@@ -56,18 +57,18 @@ defmodule Nerves.Grove.OneNumberLeds do
   """
   def write(digit_pins, digit) do
     digit_bits = @digits_code[digit]
-    Logger.debug("digits_code #{inspect(@digits_code[digit])}")
-    Logger.debug("digit_bits #{inspect(digit_bits)}")
+    # Logger.debug("digit_pins #{inspect(digit_pins)}")
+    # Logger.debug("digit_bits #{inspect(digit_bits)}")
 
     for n <- 0..7 do
       digit_bit = digit_bits |> Enum.at(n)
       pin = digit_pins |> Enum.at(n) |> Kernel.elem(1)
 
       if 1 == digit_bit do
-        Logger.debug("pid#{inspect(pin)} to 1")
+        # Logger.debug("pin#{inspect(pin)} to 1")
         GPIO.write(pin, 1)
       else
-        Logger.debug("pid#{inspect(pin)} to 0")
+        # Logger.debug("pin#{inspect(pin)} to 0")
         GPIO.write(pin, 0)
       end
     end
