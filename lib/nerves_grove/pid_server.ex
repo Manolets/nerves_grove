@@ -21,11 +21,11 @@ defmodule Nerves.Grove.PidServer do
     Agent.start_link(fn -> Map.new() end, name: __MODULE__)
   end
 
-  def put_pids(key, value) do
+  def put_pair(key, value) do
     Agent.update(__MODULE__, &map_put(&1, key, value))
   end
 
-  def get_pids(key) do
+  def get_pair(key) do
     Agent.get(__MODULE__, &map_get(&1, key))
   end
 
