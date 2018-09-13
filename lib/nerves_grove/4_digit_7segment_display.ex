@@ -19,8 +19,7 @@ defmodule Nerves.Grove.Display4_7 do
     GPIO.set_mode(13, :output)
   """
 
-  # Logger
-  require
+  require Logger
   alias Pigpiox.GPIO
   import Nerves.Grove.OneNumberLeds
   import Nerves.Grove.PidServer

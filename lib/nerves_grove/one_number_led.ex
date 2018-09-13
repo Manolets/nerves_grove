@@ -10,8 +10,8 @@ defmodule Nerves.Grove.OneNumberLeds do
 
   """
 
-  # Logger
-  require
+  require Logger
+
   alias Pigpiox.GPIO
 
   # 0~9
