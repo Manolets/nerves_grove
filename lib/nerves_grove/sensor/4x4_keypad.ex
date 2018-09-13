@@ -14,86 +14,59 @@ defmodule Nerves.Grove.Sensor.Keypad do
   RingLogger.tail
   """
 
-  import Nerves.Grove.PidServer
-  alias Pigpiox
+  alias Pigpiox.GPIO
   require Logger
-
-  @type row_pins() :: %{row1: integer(), row2: integer(), row3: integer(), row4: integer()}
-  @type column_pins() :: %{
-          column1: integer(),
-          column2: integer(),
-          column3: integer(),
-          column4: integer()
-        }
-  # @pins_code [:one, :two, :three, :four]
-
-  def start_looking() do
-    start()
-    r1 = 5
-    r2 = 6
-    r3 = 13
-    r4 = 19
-    row_pins = [r1, r2, r3, r4]
-    c1 = 12
-    c2 = 16
-    c3 = 20
-    c4 = 21
-    column_pins = [c1, c2, c3, c4]
-    put_pair(:rpin, row_pins)
-    put_pair(:cpin, column_pins)
-
+  @row_pins [5, 6, 13, 19]
+  @column_pins [12, 16, 20, 21]
+  def start_looking(row_p \\ @row_pins, col_p \\ @column_pins) do
     task_pid =
       Task.start(fn ->
-        loop()
+        loop(row_p, col_p)
       end)
 
     task_pid
   end
 
   def read(row_pins, column_pins) do
-    rpin =
-      for c <- 0..3, r <- 0..3 do
-        column_pin = column_pins |> Enum.at(c)
-        Pigpiox.GPIO.set_mode(column_pin, :output)
-        Pigpiox.GPIO.write(column_pin, 1)
-
-        row_pin = row_pins |> Enum.at(r)
-        # pin_code = @pins_code |> Enum.at(n)
-        Pigpiox.GPIO.set_mode(row_pin, :input)
-        output = Pigpiox.GPIO.read(row_pin)
-        Process.sleep(1)
-
-        if output == {:ok, 1} do
-          rp = row_pin
-          put_pair(:rp, rp)
-        end
-      end
-
-    Process.sleep(1)
-
-    for r <- 0..3, c <- 0..3 do
-      row_pin = row_pins |> Enum.at(r)
-      Pigpiox.GPIO.set_mode(row_pin, :output)
-      Pigpiox.GPIO.write(row_pin, 1)
-
+    for c <- 0..3, r <- 0..3 do
       column_pin = column_pins |> Enum.at(c)
-      # pin_code = @pins_code |> Enum.at(n)
-      Pigpiox.GPIO.set_mode(column_pin, :input)
-      output = Pigpiox.GPIO.read(column_pin)
+      GPIO.set_mode(column_pin, :output)
+      GPIO.write(column_pin, 1)
+      row_pin = row_pins |> Enum.at(r)
+      GPIO.set_mode(row_pin, :input)
+      output = GPIO.read(row_pin)
       Process.sleep(1)
-
-      Logger.debug(
-        "Row : #{inspect(get_pair(:rp))}, column :#{inspect(column_pin)}, output : #{inspect(output)} "
-      )
+      Logger.debug("Row : #{inspect(row_pin)},
+          column :#{inspect(column_pin)},
+          output : #{inspect(output)} ")
 
       if output == {:ok, 1} do
-        button_pressed(get_pair(:rp), column_pin)
+        read(row_pins, column_pins, row_pin)
+      end
+    end
+  end
+
+  defp read(row_pins, column_pins, r_pin) do
+    for r <- 0..3, c <- 0..3 do
+      row_pin = row_pins |> Enum.at(r)
+      GPIO.set_mode(row_pin, :output)
+      GPIO.write(row_pin, 1)
+      column_pin = column_pins |> Enum.at(c)
+      GPIO.set_mode(column_pin, :input)
+      output = GPIO.read(column_pin)
+      Process.sleep(1)
+      Logger.debug("Row : #{inspect(r_pin)},
+          column :#{inspect(column_pin)},
+          output : #{inspect(output)} ")
+
+      if output == {:ok, 1} do
+        button_pressed(r_pin, column_pin)
       end
     end
   end
 
   def button_pressed(row, column) do
-    Logger.debug("Before case #{inspect(row)}, #{inspect(column)}")
+    Logger.debug("Before case row:#{inspect(row)}, column:#{inspect(column)}")
 
     case [row, column] do
       [5, 12] ->
@@ -150,7 +123,7 @@ defmodule Nerves.Grove.Sensor.Keypad do
     send(pid, :stop)
   end
 
-  defp loop() do
+  defp loop(row_pins, column_pins) do
     Logger.debug("Into the execution loop....")
 
     receive do
@@ -163,7 +136,7 @@ defmodule Nerves.Grove.Sensor.Keypad do
       3_000 -> :timeout
     end
 
-    read(get_pair(:rpin), get_pair(:cpin))
-    loop()
+    read(row_pins, column_pins)
+    loop(row_pins, column_pins)
   end
 end

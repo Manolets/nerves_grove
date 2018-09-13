@@ -44,7 +44,7 @@ defmodule Nerves.Grove.Display4_7 do
 
     for {key, val} <- main_pins do
       GPIO.set_mode(val, :output)
-      # Logger.info("key:#{inspect(key)} pin :#{inspect(val)}")
+      Logger.info("key:#{inspect(key)} pin :#{inspect(val)}")
     end
   end
 
@@ -102,16 +102,6 @@ defmodule Nerves.Grove.Display4_7 do
   end
 
   @doc """
-  Pigpiox.GPIO.write(21, 0)
-  Pigpiox.GPIO.write(20, 0)
-  Pigpiox.GPIO.write(5, 0)
-  Pigpiox.GPIO.write(13, 0)
-
-  Pigpiox.GPIO.write(21, 1)
-  Pigpiox.GPIO.write(20, 1)
-  Pigpiox.GPIO.write(5, 1)
-  Pigpiox.GPIO.write(13, 1)
-
   alias Nerves.Grove.Display4_7
   Display4_7.set_main_pins(21, 20, 5, 13)
   Display4_7.set_digit_pins(17, 18, 27, 23, 22, 24, 25, 6)
@@ -121,14 +111,13 @@ defmodule Nerves.Grove.Display4_7 do
 
   """
   def display_characters(main_pins, digit_pins, characters) do
-    write_char_safe(main_pins.one, digit_pins, characters.a)
-    write_character(digit_pins, :null)
-    write_char_safe(main_pins.two, digit_pins, characters.b)
-    write_character(digit_pins, :null)
-    write_char_safe(main_pins.three, digit_pins, characters.c)
-    write_character(digit_pins, :null)
-    write_char_safe(main_pins.four, digit_pins, characters.d)
-    write_character(digit_pins, :null)
+    m_pins_list = main_pins |> Map.values()
+    char_list = characters |> Map.values()
+
+    for n <- 0..3 do
+      write_char_safe(m_pins_list |> Enum.at(n), digit_pins, char_list |> Enum.at(n))
+      write_character(digit_pins, :null)
+    end
   end
 
   defp write_char_safe(pin, digit_pins, charater) do

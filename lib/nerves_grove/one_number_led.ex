@@ -7,14 +7,10 @@ defmodule Nerves.Grove.OneNumberLeds do
     alias Nerves.Grove.OneNumberLeds
     OneNumberLeds.set_one_segment_pins(17, 18, 27, 23, 22, 24, 25, 6)
 
-
   """
-
   require Logger
-
   alias Pigpiox.GPIO
 
-  # 0~9
   @digits_code %{
     # [a,b,c,d,e,f,g,h]
     null: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -72,16 +68,5 @@ defmodule Nerves.Grove.OneNumberLeds do
         GPIO.write(pin, 0)
       end
     end
-  end
-
-  @doc """
-    alias Nerves.Grove.OneNumberLeds
-    digit_pids = OneNumberLeds.set_pins(0,1,2,3,4,5,6,7)
-    OneNumberLeds.clear(digit_pids,:one)
-  """
-  def clear(digit_pins) do
-    Enum.each(digit_pins, fn digit_pin ->
-      GPIO.write(digit_pin, 0)
-    end)
   end
 end
