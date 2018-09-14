@@ -59,8 +59,8 @@ defmodule Nerves.Grove.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:earmark, "~> 1.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.10", only: :test, runtime: false},
-      {:gpio_rpi, "~> 0.2.2"},
+      {:excoveralls, "~> 0.1", only: :test, runtime: false},
+      {:gpio_rpi, "~> 0.2"},
       {:pigpiox, "~> 0.1"}
     ]
   end
