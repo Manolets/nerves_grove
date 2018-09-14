@@ -12,31 +12,28 @@ defmodule Nerves.Grove.Buzzer do
 
       Buzzer.beep(pid, 0.1)  # make some noise for 100 ms
   """
-  alias ElixirALE.GPIO
+  alias Pigpiox.GPIO
 
-  @spec start_link(pos_integer) :: {:ok, pid} | {:error, any}
-  def start_link(pin) do
-    GPIO.start_link(pin, :output)
-  end
 
   @doc "Beeps the buzzer for a specified duration."
-  @spec beep(pid, number) :: any
-  def beep(pid, duration \\ 0.1) do
+
+  def beep(pin, duration \\ 0.1) do
+    GPIO.set_mode(pin, :output)
     duration_in_ms = (duration * 1000) |> round
-    on(pid)
+    on(pin)
     Process.sleep(duration_in_ms)
-    off(pid)
+    off(pin)
   end
 
   @doc "Switches on the buzzer, making a lot of noise."
-  @spec on(pid) :: any
-  def on(pid) do
-    GPIO.write(pid, 1)
+
+  def on(pin) do
+    GPIO.write(pin, 1)
   end
 
   @doc "Switches off the buzzer, stopping the noise."
-  @spec off(pid) :: any
-  def off(pid) do
-    GPIO.write(pid, 0)
+
+  def off(pin) do
+    GPIO.write(pin, 0)
   end
 end
