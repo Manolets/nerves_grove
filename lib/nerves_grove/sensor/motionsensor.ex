@@ -14,7 +14,7 @@ defmodule Nerves.Grove.Sensor.MotionSensor do
 
   def read(pin) when is_integer(pin) do
     GPIO.set_mode(pin, :input)
-    {:ok,output} = GPIO.read(pin)
+    {:ok, output} = GPIO.read(pin)
     output == 1
   end
 end
