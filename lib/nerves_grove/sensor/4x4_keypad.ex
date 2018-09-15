@@ -28,7 +28,7 @@ defmodule Nerves.Grove.Sensor.Keypad do
 
   alias Pigpiox.GPIO
   require Logger
-  @row_pins [5, 6, 13, 19]
+  @row_pins [27, 22, 13, 19]
   @column_pins [12, 16, 20, 21]
   #  def start_looking(row_p \\ @row_pins, col_p \\ @column_pins) do
   #    task_pid =
