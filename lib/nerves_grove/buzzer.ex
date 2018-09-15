@@ -14,7 +14,6 @@ defmodule Nerves.Grove.Buzzer do
   """
   alias Pigpiox.GPIO
 
-
   @doc "Beeps the buzzer for a specified duration."
 
   def beep(pin, duration \\ 0.1) do

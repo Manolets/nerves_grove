@@ -22,3 +22,5 @@ erl_crash.dump
 # Editor backup files
 *~
 .vscode/*
+.idea
+*.iml

@@ -17,5 +17,4 @@ defmodule Nerves.Grove.Sensor.MotionSensor do
     output = GPIO.read(pin) |> elem(1)
     output
   end
-
 end
