@@ -5,7 +5,7 @@ defmodule Nerves.Grove.Servo do
 
   pin = 18
 
-  delay1 = (180 * 13.2) |> round()
+  delay1 = ((180 * 13.2) + 600) |> round()
   delay2 = 20000 - delay1
 
   pulses = [
@@ -29,7 +29,7 @@ defmodule Nerves.Grove.Servo do
   alias Pigpiox
 
   def rotate(pin, angle) do
-    delay1 = (angle * 13.2) |> round()
+    delay1 = ((angle * 13.2) + 600) |> round()
     delay2 = 20000 - delay1
     pulses = [
       %Pigpiox.Waveform.Pulse{gpio_on: pin, delay: delay1},
