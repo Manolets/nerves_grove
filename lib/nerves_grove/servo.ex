@@ -1,11 +1,11 @@
 defmodule Nerves.Grove.Servo do
   @moduledoc """
    alias Pigpiox
-   Nerves.Grove.Servo.move(18, 0)
+   Nerves.Grove.Servo.rotate(18, 0)
 
   pin = 18
 
-  delay1 = ((180 * 13.2) + 600) |> round()
+  delay1 = ((2000*180 / 180  ) + 600) |> round()
   delay2 = 20000 - delay1
 
   pulses = [
@@ -29,7 +29,7 @@ defmodule Nerves.Grove.Servo do
   alias Pigpiox
 
   def rotate(pin, angle) do
-    delay1 = ((angle * 13.2) + 600) |> round()
+    delay1 = ((2000 * angle / 180) + 600) |> round()
     delay2 = 20000 - delay1
     pulses = [
       %Pigpiox.Waveform.Pulse{gpio_on: pin, delay: delay1},
