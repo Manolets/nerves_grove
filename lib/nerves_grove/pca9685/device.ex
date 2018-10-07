@@ -31,8 +31,8 @@ defmodule Nerves.Grove.PCA9685.Device do
   @doc """
   Connects to a PCA9685 device over the i2c bus using Pigpiox.
   """
-  @spec start_link(integer) :: {:ok, pid}
-  def start_link(state), do: GenServer.start_link(@server, state, name: @server)
+  @spec start_link(map) :: {:ok, pid}
+  def start_link(config), do: GenServer.start_link(@server, config, name: @server)
 
   ############################################################################
   ############################################################################
