@@ -2,7 +2,8 @@ defmodule Nerves.Grove.PCA9685.Device do
   alias Pigpiox.I2C
   use Bitwise
   require Logger
-
+  @type pulse :: 0..4096
+  @type channel :: 0..15
   @server Nerves.Grove.PCA9685.DeviceServer
   @pca9685_address 0x40
   @mode1 0x00
@@ -30,9 +31,42 @@ defmodule Nerves.Grove.PCA9685.Device do
   """
   @doc """
   Connects to a PCA9685 device over the i2c bus using Pigpiox.
+  It accepts a map indicating bus number and an integer setting frecuency
+    %{bus : 1, , pwm_freq: 50 }
   """
   @spec start_link(map) :: {:ok, pid}
   def start_link(config), do: GenServer.start_link(@server, config, name: @server)
+
+  @doc """
+  Disconnect PCA9685 device over the i2c bus using Pigpiox.
+  """
+
+  def stop(pid), do: GenServer.stop(pid, :normal)
+
+  @doc """
+  Configures the PWM frequency.
+  """
+  @spec pwm_freq(pid, pos_integer) :: :ok
+  def pwm_freq(pid, hz)
+      when is_integer(hz),
+      do: GenServer.cast(pid, {:pwm_freq, hz})
+
+  @doc """
+  Sets all channels to the specified duty cycle.
+  """
+  @spec all(pid, pulse, pulse) :: :ok
+  def all(pid, on, off)
+      when on in 0..4096 and off in 0..4096,
+      do: GenServer.cast(pid, {:all, on, off})
+
+  @doc """
+  Sets the channel to a specified duty cycle.
+  """
+  @spec channel(pid, channel, pulse, pulse) :: :ok
+  def channel(pid, channel_no, on, off)
+      when is_integer(channel_no)
+      when on in 0..4096 and off in 0..4096 and channel_no in 0..15,
+      do: GenServer.cast(pid, {:channel, channel_no, on, off})
 
   ############################################################################
   ############################################################################

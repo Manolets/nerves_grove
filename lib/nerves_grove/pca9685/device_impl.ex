@@ -20,10 +20,29 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
   @all_led_off_h 0xFD
   # Bits:
   # @restart 0x80
-  # @sleep 0x10
-  # @allcall 0x01
+  @sleep 0x10
+  @allcall 0x01
   # @invrt 0x10
-  # @outdrv 0x04
+  @outdrv 0x04
+
+  def do_init(%{bus: bus} = state) do
+    with {:ok, handle} <- I2C.open(bus, @pca9685_address),
+         state <- Map.put(state, :handle, handle),
+         :ok <- I2C.write_byte_data(handle, @mode2, @outdrv),
+         :ok <- I2C.write_byte_data(handle, @mode1, @allcall),
+         :ok <- Process.sleep(5),
+         {:ok, mode1} <- I2C.read_byte_data(handle, @mode1),
+         :ok <- I2C.write_byte_data(handle, @mode1, mode1 &&& ~~~@sleep),
+         :ok <- Process.sleep(5),
+         :ok <- set_pwm_freq_if_required(state),
+         :ok <- Logger.info("Connected to PCA9685 at #{bus} whit handle value:#{handle}"),
+         do: {:ok, state}
+  end
+
+  defp set_pwm_freq_if_required(%{pwm_freq: hz} = state) when is_number(hz) and hz > 0,
+    do: do_set_pwm_freq(state, hz)
+
+  defp set_pwm_freq_if_required(_state), do: :ok
 
   def do_set_pwm_freq(%{handle: handle}, freq) do
     prescaleval = 25_000_000.0 / 4096.0 / freq - 1
