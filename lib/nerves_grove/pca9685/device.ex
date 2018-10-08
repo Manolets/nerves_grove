@@ -43,8 +43,9 @@ defmodule Nerves.Grove.PCA9685.Device do
   def stop(pid), do: GenServer.stop(pid, :normal)
 
   @doc """
-  Configures the PWM frequency.
-  """
+  Configures the PWM Pulse-width modulation frequency.
+  F(hz)=1/T(s) 50hz=20ms
+   """
   @spec pwm_freq(pid, pos_integer) :: :ok
   def pwm_freq(pid, hz)
       when is_integer(hz),
