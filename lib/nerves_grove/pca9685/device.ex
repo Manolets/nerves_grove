@@ -24,10 +24,9 @@ defmodule Nerves.Grove.PCA9685.Device do
 
   Try this:
 
-  alias Nerves.Grove.Device
+  alias Nerves.Grove.PCA9685.Device
   handle = Device.start_shield
-  Device.set_pwm_freq(handle, 50)
-  Device.set_pwm(handle, 0, 0, 150)
+  Device.set_servo(handle, 0, 90)
   """
   @doc """
   Connects to a PCA9685 device over the i2c bus using Pigpiox.
@@ -80,6 +79,8 @@ defmodule Nerves.Grove.PCA9685.Device do
     I2C.write_byte_data(handle, @mode1, mode1)
     Process.sleep(10)
 
+    set_pwm_freq(handle, 50)
+
     handle
   end
 
@@ -102,8 +103,8 @@ defmodule Nerves.Grove.PCA9685.Device do
     I2C.write_byte_data(handle, @led0_off_h + 4 * channel, off >>> 8)
   end
 
-  def test() do
-    handle = start_shield()
-    set_pwm_freq(handle, 50)
+  def set_servo(handle, channel, degres) do
+    off = 2.5*degres+150 |> round()
+    set_pwm(handle, channel, 0, off)
   end
 end
