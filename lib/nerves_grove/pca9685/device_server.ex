@@ -13,6 +13,12 @@ defmodule Nerves.Grove.PCA9685.DeviceServer do
   def init(state), do: DeviceImpl.do_init(state)
 
   @doc false
+  def terminate(reason, state) do
+    DeviceImpl.do_terminate(state)
+    {:stop, reason}
+  end
+
+  @doc false
   def handle_call(:pwm_freq, _from, state) do
     hz = Map.get(state, :pwm_freq)
     {:reply, hz, state}

@@ -30,8 +30,15 @@ defmodule Nerves.Grove.PCA9685.Device do
   """
   @doc """
   Connects to a PCA9685 device over the i2c bus using Pigpiox.
+  http://wiki.sunfounder.cc/index.php?title=PCA9685_16_Channel_12_Bit_PWM_Servo_Driver
   It accepts a map indicating bus number and an integer setting frecuency
-    %{bus : 1, , pwm_freq: 50 }
+    [%{bus : 1, address: 0x40, pwm_freq: 60}]
+  It accepts a list because raspberry can manage several boards
+  Board 0: Address = 0x40 Offset = binary 00000 (no jumpers required)
+  Board 1: Address = 0x41 Offset = binary 00001 (bridge A0 as in the photo above)
+  Board 2: Address = 0x42 Offset = binary 00010 (bridge A1)
+  Board 3: Address = 0x43 Offset = binary 00011 (bridge A0 & A1)
+  Board 4: Address = 0x44 Offset = binary 00100 (bridge A2)
   """
   @spec start_link(map) :: {:ok, pid}
   def start_link(config), do: GenServer.start_link(@server, config, name: @server)
@@ -43,9 +50,16 @@ defmodule Nerves.Grove.PCA9685.Device do
   def stop(pid), do: GenServer.stop(pid, :normal)
 
   @doc """
+  Returns the currently configured PWM frequency.
+  """
+  @spec pwm_freq(pid) :: pos_integer
+  def pwm_freq(pid),
+    do: GenServer.call(pid, :pwm_freq)
+
+  @doc """
   Configures the PWM Pulse-width modulation frequency.
   F(hz)=1/T(s) 50hz=20ms
-   """
+  """
   @spec pwm_freq(pid, pos_integer) :: :ok
   def pwm_freq(pid, hz)
       when is_integer(hz),
@@ -105,7 +119,7 @@ defmodule Nerves.Grove.PCA9685.Device do
   end
 
   def set_servo(handle, channel, degres) do
-    off = 2.5*degres+150 |> round()
+    off = (2.5 * degres + 150) |> round()
     set_pwm(handle, channel, 0, off)
   end
 end

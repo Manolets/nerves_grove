@@ -5,8 +5,9 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
   alias Pigpiox.I2C
   use Bitwise
   require Logger
-
+  # Default values with a single board
   @pca9685_address 0x40
+  @pca9685_bus 1
   @mode1 0x00
   @mode2 0x01
   @prescale 0xFE
@@ -25,8 +26,14 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
   # @invrt 0x10
   @outdrv 0x04
 
-  def do_init(%{bus: bus} = state) do
-    with {:ok, handle} <- I2C.open(bus, @pca9685_address),
+  @spec do_init([%{address: byte(), bus: 0 | 1}, ...]) ::
+          {:error, any()} | {:ok, %{address: byte(), bus: 0 | 1, handle: non_neg_integer()}}
+  def do_init(
+        [%{bus: bus, address: address} = state] \\ [
+          %{bus: @pca9685_bus, address: @pca9685_address}
+        ]
+      ) do
+    with {:ok, handle} <- I2C.open(bus, address),
          state <- Map.put(state, :handle, handle),
          :ok <- I2C.write_byte_data(handle, @mode2, @outdrv),
          :ok <- I2C.write_byte_data(handle, @mode1, @allcall),
@@ -39,11 +46,15 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
          do: {:ok, state}
   end
 
+  @spec do_terminate(%{handle: non_neg_integer()}) :: :ok | {:error, atom()}
+  def do_terminate(%{handle: handle}), do: I2C.close(handle)
+
   defp set_pwm_freq_if_required(%{pwm_freq: hz} = state) when is_number(hz) and hz > 0,
     do: do_set_pwm_freq(state, hz)
 
   defp set_pwm_freq_if_required(_state), do: :ok
 
+  @spec do_set_pwm_freq(%{handle: non_neg_integer()}, number()) :: :ok | {:error, atom()}
   def do_set_pwm_freq(%{handle: handle}, freq) do
     prescaleval = 25_000_000.0 / 4096.0 / freq - 1
     prescale = (prescaleval + 0.5) |> Float.floor() |> trunc()
@@ -58,6 +69,8 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
     I2C.write_byte_data(handle, @mode1, olmode ||| 0x80)
   end
 
+  @spec do_set_pwm(%{handle: non_neg_integer()}, integer(), integer(), any()) ::
+          :ok | {:error, atom()}
   def do_set_pwm(%{handle: handle}, channel, on, off) do
     with :ok <- I2C.write_byte_data(handle, @led0_on_l + 4 * channel, on &&& 0xFF),
          :ok <- I2C.write_byte_data(handle, @led0_on_h + 4 * channel, on >>> 8),
@@ -66,6 +79,7 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
          do: :ok
   end
 
+  @spec do_set_all_pwm(%{handle: non_neg_integer()}, integer(), any()) :: :ok | {:error, atom()}
   def do_set_all_pwm(%{handle: handle}, on, off) do
     with :ok <- I2C.write_byte_data(handle, @all_led_on_l, on &&& 0xFF),
          :ok <- I2C.write_byte_data(handle, @all_led_on_h, on >>> 8),
