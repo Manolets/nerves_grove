@@ -4,7 +4,6 @@ defmodule Nerves.Grove.PCA9685.DeviceServer do
   """
   use GenServer
   alias Nerves.Grove.PCA9685.DeviceImpl
-  require Logger
 
   @doc """
   GenServer.init/1 callback

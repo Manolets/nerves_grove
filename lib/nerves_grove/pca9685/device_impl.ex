@@ -1,10 +1,12 @@
 defmodule Nerves.Grove.PCA9685.DeviceImpl do
-  @moduledoc """
-  Device pca9685 GenServer Implementation
-  """
   alias Pigpiox.I2C
   use Bitwise
   require Logger
+
+  @moduledoc """
+  Device pca9685 GenServer Implementation
+  """
+
   # Default values with a single board
   @pca9685_address 0x40
   @pca9685_bus 1
@@ -58,7 +60,7 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
   def do_set_pwm_freq(%{handle: handle}, freq) do
     prescaleval = 25_000_000.0 / 4096.0 / freq - 1
     prescale = (prescaleval + 0.5) |> Float.floor() |> trunc()
-    Logger.debug("Final pre-scale: #{prescale}")
+    Logger.debug("Final frecuency pre-scale: #{prescale}")
 
     {:ok, olmode} = I2C.read_byte_data(handle, @mode1)
     newmode = (olmode &&& 0x7F) ||| 0x10
