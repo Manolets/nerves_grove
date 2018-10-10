@@ -8,6 +8,7 @@ defmodule Nerves.Grove.PCA9685.DeviceServer do
   @doc """
   GenServer.init/1 callback
   Device configuration selects a bus and a specific frecuency
+
   """
   def init(state), do: DeviceImpl.do_init(state)
 

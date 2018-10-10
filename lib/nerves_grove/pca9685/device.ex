@@ -5,6 +5,7 @@ defmodule Nerves.Grove.PCA9685.Device do
   @type pulse :: 0..4096
   @type channel :: 0..15
   @server Nerves.Grove.PCA9685.DeviceServer
+  @device_registry_name :PCA9685_proceess_registry
   @pca9685_address 0x40
   @mode1 0x00
   @mode2 0x01
@@ -40,13 +41,16 @@ defmodule Nerves.Grove.PCA9685.Device do
   Board 3: Address = 0x43 Offset = binary 00011 (bridge A0 & A1)
   Board 4: Address = 0x44 Offset = binary 00100 (bridge A2)
   """
-  @spec start_link(map) :: {:ok, pid}
-  def start_link(config), do: GenServer.start_link(@server, config, name: @server)
+
+  def start_link(config), do: GenServer.start_link(@server, config, name: via_tuple(config))
+
+  # registry lookup handler
+  defp via_tuple([%{bus: bus, address: address}]),
+    do: {:via, Registry, {@device_registry_name, {bus, address}}}
 
   @doc """
   Disconnect PCA9685 device over the i2c bus using Pigpiox.
   """
-
   def stop(pid), do: GenServer.stop(pid, :normal)
 
   @doc """
