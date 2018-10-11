@@ -1,6 +1,7 @@
 defmodule Nerves.Grove.PCA9685.DeviceSupervison do
   use Supervisor
-
+@dev_srv Nerves.Grove.PCA9685.Device
+@device_server_registry_name :device_server_process_registry
   @moduledoc """
   Device pca9685 Worker
    config :pca9685,
@@ -21,17 +22,28 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervison do
     Board 3: Address = 0x43 Offset = binary 00011 (bridge A0 & A1)
     Board 4: Address = 0x44 Offset = binary 00100 (bridge A2)
   """
-  def start_link do
-    Supervisor.start_link(__MODULE__, [])
+  def start_link(map) do
+    Supervisor.start_link(__MODULE__, [map], name: __MODULE__)
   end
+  def start_devise(%{bus: bus, address: address} = map) do
+    # And we use `start_child/2` to start a new Chat.Server process
+    with {:ok, _pid} <-
+           Supervisor.start_child(__MODULE__, worker(@dev_srv, [map], id: {bus, address})) do
+      {:ok, {bus, address}}
+    else
+      {:error, error} -> {:error, error}
+    end
+  end
+  def account_process_devices, do: Supervisor.which_children(__MODULE__)
 
-  def init([]) do
+  def init() do
     children()
     |> supervise(options())
   end
 
   def init(config) do
-    children(config)
+    [worker(Registry, [:unique, @device_server_registry_name])
+    | children(config)]
     |> supervise(options())
   end
 

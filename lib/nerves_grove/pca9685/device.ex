@@ -51,40 +51,38 @@ defmodule Nerves.Grove.PCA9685.Device do
   @doc """
   Disconnect PCA9685 device over the i2c bus using Pigpiox.
   """
-  def stop(pid), do: GenServer.stop(pid, :normal)
+  def stop(map), do: GenServer.stop(:normal, map)
 
   @doc """
   Returns the currently configured PWM frequency.
   """
-  @spec pwm_freq(pid) :: pos_integer
-  def pwm_freq(pid),
-    do: GenServer.call(pid, :pwm_freq)
+  def pwm_freq(map),
+    do: GenServer.call(via_tuple(map), :pwm_freq)
 
   @doc """
   Configures the PWM Pulse-width modulation frequency.
   F(hz)=1/T(s) 50hz=20ms
   """
-  @spec pwm_freq(pid, pos_integer) :: :ok
-  def pwm_freq(pid, hz)
+
+  def pwm_freq(map, hz)
       when is_integer(hz),
-      do: GenServer.cast(pid, {:pwm_freq, hz})
+      do: GenServer.cast(via_tuple(map), {:pwm_freq, hz})
 
   @doc """
   Sets all channels to the specified duty cycle.
   """
-  @spec all(pid, pulse, pulse) :: :ok
-  def all(pid, on, off)
+
+  def all(map, on, off)
       when on in 0..4096 and off in 0..4096,
-      do: GenServer.cast(pid, {:all, on, off})
+      do: GenServer.cast(via_tuple(map), {:all, on, off})
 
   @doc """
   Sets the channel to a specified duty cycle.
   """
-  @spec channel(pid, channel, pulse, pulse) :: :ok
-  def channel(pid, channel_no, on, off)
+  def channel(map, channel_no, on, off)
       when is_integer(channel_no)
       when on in 0..4096 and off in 0..4096 and channel_no in 0..15,
-      do: GenServer.cast(pid, {:channel, channel_no, on, off})
+      do: GenServer.cast(via_tuple(map), {:channel, channel_no, on, off})
 
   ############################################################################
   ############################################################################
