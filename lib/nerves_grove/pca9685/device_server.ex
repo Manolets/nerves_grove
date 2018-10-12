@@ -10,7 +10,7 @@ defmodule Nerves.Grove.PCA9685.DeviceServer do
   Device configuration selects a bus and a specific frecuency
 
   """
-  def init(state), do: DeviceImpl.do_init(state)
+  def init(config), do: DeviceImpl.do_init(config)
 
   @doc false
   def terminate(reason, state) do
@@ -25,21 +25,20 @@ defmodule Nerves.Grove.PCA9685.DeviceServer do
   end
 
   @doc false
-  def handle_cast({:pwm_freq, hz}, %{handle: handle} = state) do
-    :ok = DeviceImpl.do_set_pwm_freq(handle, hz)
-    state = Map.put(state, :pwm_freq, hz)
+  def handle_cast({:pwm_freq, hz}, state) do
+    :ok = DeviceImpl.do_set_pwm_freq(hz, state)
     {:noreply, state}
   end
 
   @doc false
   def handle_cast({:all, on, off}, state) do
-    :ok = DeviceImpl.do_set_all_pwm(state, on, off)
+    :ok = DeviceImpl.do_set_all_pwm(on, off, state)
     {:noreply, state}
   end
 
   @doc false
   def handle_cast({:channel, channel_no, on, off}, state) do
-    :ok = DeviceImpl.do_set_pwm(state, channel_no, on, off)
+    :ok = DeviceImpl.do_set_pwm(channel_no, on, off, state)
     {:noreply, state}
   end
 end

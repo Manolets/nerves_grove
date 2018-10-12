@@ -18,7 +18,7 @@ defmodule Nerves.Grove.PCA9685.ServoServer do
 
   @doc false
   def handle_cast({:position, degrees}, state) do
-    state = ServoImpl.set_position(state, degrees)
+    state = ServoImpl.set_position(degrees, state)
     {:noreply, state}
   end
 end

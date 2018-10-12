@@ -1,7 +1,7 @@
 defmodule Nerves.Grove.PCA9685.DeviceSupervison do
   use Supervisor
-@dev_srv Nerves.Grove.PCA9685.Device
-@device_server_registry_name :device_server_process_registry
+  @dev_srv Nerves.Grove.PCA9685.Device
+  @device_registry_name :PCA9685_proccess_registry
   @moduledoc """
   Device pca9685 Worker
    config :pca9685,
@@ -25,7 +25,8 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervison do
   def start_link(map) do
     Supervisor.start_link(__MODULE__, [map], name: __MODULE__)
   end
-  def start_devise(%{bus: bus, address: address} = map) do
+
+  def start_device(%{bus: bus, address: address} = map) do
     # And we use `start_child/2` to start a new Chat.Server process
     with {:ok, _pid} <-
            Supervisor.start_child(__MODULE__, worker(@dev_srv, [map], id: {bus, address})) do
@@ -34,6 +35,7 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervison do
       {:error, error} -> {:error, error}
     end
   end
+
   def account_process_devices, do: Supervisor.which_children(__MODULE__)
 
   def init() do
@@ -42,15 +44,17 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervison do
   end
 
   def init(config) do
-    [worker(Registry, [:unique, @device_server_registry_name])
-    | children(config)]
+    [
+      worker(Registry, [:unique, @device_registry_name])
+      | children(config)
+    ]
     |> supervise(options())
   end
 
   def children do
     :pca9685
     |> Application.get_env(:devices, [])
-    |> Enum.map(fn %{ bus: bus, address: address} = config ->
+    |> Enum.map(fn %{bus: bus, address: address} = config ->
       worker(Nerves.Grove.PCA9685.Device, [config], id: {bus, address})
     end)
   end

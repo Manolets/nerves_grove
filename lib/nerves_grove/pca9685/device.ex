@@ -5,7 +5,7 @@ defmodule Nerves.Grove.PCA9685.Device do
   @type pulse :: 0..4096
   @type channel :: 0..15
   @server Nerves.Grove.PCA9685.DeviceServer
-  @device_registry_name :PCA9685_proceess_registry
+  @device_registry_name :PCA9685_proccess_registry
   @pca9685_address 0x40
   @mode1 0x00
   @mode2 0x01
@@ -45,7 +45,7 @@ defmodule Nerves.Grove.PCA9685.Device do
   def start_link(config), do: GenServer.start_link(@server, config, name: via_tuple(config))
 
   # registry lookup handler
-  defp via_tuple([%{bus: bus, address: address}]),
+  defp via_tuple(%{bus: bus, address: address}),
     do: {:via, Registry, {@device_registry_name, {bus, address}}}
 
   @doc """
@@ -79,10 +79,10 @@ defmodule Nerves.Grove.PCA9685.Device do
   @doc """
   Sets the channel to a specified duty cycle.
   """
-  def channel(map, channel_no, on, off)
-      when is_integer(channel_no)
-      when on in 0..4096 and off in 0..4096 and channel_no in 0..15,
-      do: GenServer.cast(via_tuple(map), {:channel, channel_no, on, off})
+  def channel(map, channel, on, off)
+      when is_integer(channel)
+      when on in 0..4096 and off in 0..4096 and channel in 0..15,
+      do: GenServer.cast(via_tuple(map), {:channel, channel, on, off})
 
   ############################################################################
   ############################################################################

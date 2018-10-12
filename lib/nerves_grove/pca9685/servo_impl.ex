@@ -24,14 +24,14 @@ defmodule Nerves.Grove.PCA9685.ServoImpl do
     {:ok, state}
   end
 
-  def set_position(%{pid: pid, channel: channel} = state, position) do
+  def set_position(position, %{channel: channel} = state) do
     pwm = scale(state, position)
-    :ok = Device.channel(pid, channel, 0, pwm)
+    :ok = Device.channel(state, channel, 0, pwm)
     Map.put(state, :position, position)
   end
 
   defp set_initial_position(%{position: position} = state) do
-    set_position(state, position)
+    set_position(position, state)
   end
 
   defp set_initial_position(state), do: state

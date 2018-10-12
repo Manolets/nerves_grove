@@ -52,12 +52,12 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
   def do_terminate(%{handle: handle}), do: I2C.close(handle)
 
   defp set_pwm_freq_if_required(%{pwm_freq: hz} = state) when is_number(hz) and hz > 0,
-    do: do_set_pwm_freq(state, hz)
+    do: do_set_pwm_freq(hz, state)
 
   defp set_pwm_freq_if_required(_state), do: :ok
 
-  @spec do_set_pwm_freq(%{handle: non_neg_integer()}, number()) :: :ok | {:error, atom()}
-  def do_set_pwm_freq(%{handle: handle}, freq) do
+  @spec do_set_pwm_freq(integer(), any) :: :ok | {:error, atom()}
+  def do_set_pwm_freq(freq, %{handle: handle}) do
     prescaleval = 25_000_000.0 / 4096.0 / freq - 1
     prescale = (prescaleval + 0.5) |> Float.floor() |> trunc()
     Logger.debug("Final frecuency pre-scale: #{prescale}")
@@ -71,9 +71,9 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
     I2C.write_byte_data(handle, @mode1, olmode ||| 0x80)
   end
 
-  @spec do_set_pwm(%{handle: non_neg_integer()}, integer(), integer(), any()) ::
+  @spec do_set_pwm(integer(), integer(), integer(), any()) ::
           :ok | {:error, atom()}
-  def do_set_pwm(%{handle: handle}, channel, on, off) do
+  def do_set_pwm(channel, on, off, %{handle: handle}) do
     with :ok <- I2C.write_byte_data(handle, @led0_on_l + 4 * channel, on &&& 0xFF),
          :ok <- I2C.write_byte_data(handle, @led0_on_h + 4 * channel, on >>> 8),
          :ok <- I2C.write_byte_data(handle, @led0_off_l + 4 * channel, off &&& 0xFF),
@@ -81,8 +81,8 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
          do: :ok
   end
 
-  @spec do_set_all_pwm(%{handle: non_neg_integer()}, integer(), any()) :: :ok | {:error, atom()}
-  def do_set_all_pwm(%{handle: handle}, on, off) do
+  @spec do_set_all_pwm(integer(), integer(), any()) :: :ok | {:error, atom()}
+  def do_set_all_pwm(on, off, %{handle: handle}) do
     with :ok <- I2C.write_byte_data(handle, @all_led_on_l, on &&& 0xFF),
          :ok <- I2C.write_byte_data(handle, @all_led_on_h, on >>> 8),
          :ok <- I2C.write_byte_data(handle, @all_led_off_l, off &&& 0xFF),
