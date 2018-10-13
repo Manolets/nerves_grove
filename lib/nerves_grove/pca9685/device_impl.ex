@@ -28,12 +28,8 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
   # @invrt 0x10
   @outdrv 0x04
 
-  @spec do_init([%{address: byte(), bus: 0 | 1}, ...]) ::
-          {:error, any()} | {:ok, %{address: byte(), bus: 0 | 1, handle: non_neg_integer()}}
   def do_init(
-        [%{bus: bus, address: address} = state] \\ [
-          %{bus: @pca9685_bus, address: @pca9685_address}
-        ]
+        %{bus: bus, address: address} = state \\ %{bus: @pca9685_bus, address: @pca9685_address}
       ) do
     with {:ok, handle} <- I2C.open(bus, address),
          state <- Map.put(state, :handle, handle),
@@ -44,7 +40,7 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
          :ok <- I2C.write_byte_data(handle, @mode1, mode1 &&& ~~~@sleep),
          :ok <- Process.sleep(5),
          :ok <- set_pwm_freq_if_required(state),
-         :ok <- Logger.info("Connected to PCA9685 at #{bus} whit handle value:#{handle}"),
+         :ok <- Logger.info("Connected to PCA9685->bus:#{bus},address:#{address},handle:#{handle}"),
          do: {:ok, state}
   end
 
@@ -71,8 +67,7 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
     I2C.write_byte_data(handle, @mode1, olmode ||| 0x80)
   end
 
-  @spec do_set_pwm(integer(), integer(), integer(), any()) ::
-          :ok | {:error, atom()}
+  @spec do_set_pwm(integer(), integer(), integer(), any()) :: :ok | {:error, atom()}
   def do_set_pwm(channel, on, off, %{handle: handle}) do
     with :ok <- I2C.write_byte_data(handle, @led0_on_l + 4 * channel, on &&& 0xFF),
          :ok <- I2C.write_byte_data(handle, @led0_on_h + 4 * channel, on >>> 8),

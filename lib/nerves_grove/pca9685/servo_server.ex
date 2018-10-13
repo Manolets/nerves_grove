@@ -9,7 +9,7 @@ defmodule Nerves.Grove.PCA9685.ServoServer do
     %{bus: 1, address: 0x40, channel: 2, position: 90, min: 175, max: 575}]
   """
   @doc false
-  def init([config]), do: ServoImpl.do_init([config])
+  def init(config), do: ServoImpl.do_init(config)
 
   @doc false
   def handle_call(:position, _from, %{position: position} = state) do
