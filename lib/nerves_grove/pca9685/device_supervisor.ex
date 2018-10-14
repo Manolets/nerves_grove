@@ -1,4 +1,4 @@
-defmodule Nerves.Grove.PCA9685.DeviceSupervison do
+defmodule Nerves.Grove.PCA9685.DeviceSupervisor do
   use Supervisor
   @dev_srv Nerves.Grove.PCA9685.Device
   @device_registry_name :PCA9685_proccess_registry
@@ -26,10 +26,45 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervison do
     Board 3: Address = 0x43 Offset = binary 00011 (bridge A0 & A1)
     Board 4: Address = 0x44 Offset = binary 00100 (bridge A2)
 
-    Nerves.Grove.PCA9685.DeviceSupervison.start_link (%{bus: 1, address: 0x40, pwm_freq: 60})
+    Nerves.Grove.PCA9685.DeviceSupervisor.start_link (%{bus: 1, address: 0x40, pwm_freq: 60})
   """
-  def start_link(map) do
-    Supervisor.start_link(__MODULE__, [map], name: __MODULE__)
+  def start_link(config) when is_list(config) do
+    Supervisor.start_link(__MODULE__, config, name: __MODULE__)
+  end
+
+  def init(config) when is_list(config) do
+    [
+      #worker(Registry, [:unique, @device_registry_name])
+      {Registry, keys: :unique, name: @device_registry_name}
+      | children(config)
+    ]
+    |> Supervisor.init(options()) #supervise(options())
+  end
+
+  def children(config) do
+    config
+    |> Enum.map(fn %{bus: bus, address: address} = config ->
+      worker(Nerves.Grove.PCA9685.Device, [config], id: {bus, address})
+    end)
+  end
+
+  def start_link(), do: Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+
+  def init() do
+    [
+      #worker(Registry, [:unique, @device_registry_name])
+      {Registry, keys: :unique, name: @device_registry_name}
+      | children()
+    ]
+    |> Supervisor.init(options()) #supervise(options())
+  end
+
+  def children do
+    :pca9685
+    |> Application.get_env(:devices, [])
+    |> Enum.map(fn %{bus: bus, address: address} = config ->
+      worker(Nerves.Grove.PCA9685.Device, [config], id: {bus, address})
+    end)
   end
 
   def start_device(%{bus: bus, address: address} = map) do
@@ -44,35 +79,7 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervison do
 
   def account_process_devices, do: Supervisor.which_children(__MODULE__)
 
-  def init() do
-    children()
-    |> supervise(options())
-  end
-
-  def init(config) do
-    [
-      worker(Registry, [:unique, @device_registry_name])
-      | children(config)
-    ]
-    |> supervise(options())
-  end
-
-  def children do
-    :pca9685
-    |> Application.get_env(:devices, [])
-    |> Enum.map(fn %{bus: bus, address: address} = config ->
-      worker(Nerves.Grove.PCA9685.Device, [config], id: {bus, address})
-    end)
-  end
-
-  def children(config) do
-    config
-    |> Enum.map(fn %{bus: bus, address: address} = config ->
-      worker(Nerves.Grove.PCA9685.Device, [config], id: {bus, address})
-    end)
-  end
-
-  def options do
+  defp options do
     [strategy: :one_for_one, name: __MODULE__]
   end
 end

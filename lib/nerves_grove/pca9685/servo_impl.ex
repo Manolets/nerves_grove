@@ -37,8 +37,8 @@ defmodule Nerves.Grove.PCA9685.ServoImpl do
   defp set_initial_position(state), do: state
 
   defp scale(%{min: min, max: max}, degrees)
-       when is_integer(degrees) and degrees >= 0 and degrees <= 180 do
+       when degrees in 0..180 do
     range = max - min
-    (degrees / 180 * range) + min |> round
+    (degrees / 180 * range + min) |> round
   end
 end

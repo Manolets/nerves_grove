@@ -40,7 +40,8 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
          :ok <- I2C.write_byte_data(handle, @mode1, mode1 &&& ~~~@sleep),
          :ok <- Process.sleep(5),
          :ok <- set_pwm_freq_if_required(state),
-         :ok <- Logger.info("Connected to PCA9685->bus:#{bus},address:#{address},handle:#{handle}"),
+         :ok <-
+           Logger.info("Connected to PCA9685->bus:#{bus},address:#{address},handle:#{handle}"),
          do: {:ok, state}
   end
 
