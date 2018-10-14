@@ -1,4 +1,5 @@
 defmodule Nerves.Grove.PCA9685.Servo do
+  alias Nerves.Grove.PCA9685.ServoSweep
   @servo_registry_name :servo_proccess_registry_name
   @server Nerves.Grove.PCA9685.ServoServer
   @moduledoc """
@@ -32,4 +33,20 @@ defmodule Nerves.Grove.PCA9685.Servo do
   def position(map, degrees)
       when is_integer(degrees) and degrees >= 0 and degrees <= 180,
       do: GenServer.cast(via_tuple(map), {:position, degrees})
+
+  @doc """
+  Begin the process of sweeping to a new target position over a period of time.
+  See `ServoSweep` for more information.
+  """
+  def sweep(map, degrees, duration, step_delay)
+      when is_integer(step_delay),
+      do: sweep(map, degrees, duration)
+
+  @doc """
+  Begin the process of sweeping to a new target position over a period of time.
+  See `ServoSweep` for more information.
+  """
+  def sweep(map, degrees, duration)
+      when is_map(map) and is_integer(duration) and degrees in 0..180,
+      do: ServoSweep.start_link(map, degrees, duration)
 end

@@ -38,6 +38,8 @@ defmodule Nerves.Grove.PCA9685.ServoSupervisor do
   RingLogger.attach()
   alias Nerves.Grove.PCA9685.{ServoSupervisor,Servo,DeviceSupervisor,Device}
   ServoSupervisor.start_shield()
+  DeviceSupervisor.account_process_devices
+  ServoSupervisor.account_process_servos
   Servo.position(%{bus: 1, address: 0x40, channel: 0},90)
   Servo.position(%{bus: 1, address: 0x40, channel: 1},180)
   """
@@ -52,11 +54,12 @@ defmodule Nerves.Grove.PCA9685.ServoSupervisor do
 
   def init(config) when is_list(config) do
     [
-      #worker(Registry, [:unique, @servo_registry_name])
-      {Registry, keys: :unique, name: @device_registry_name}
+      # worker(Registry, [:unique, @servo_registry_name])
+      {Registry, keys: :unique, name: @servo_registry_name}
       | children(config)
     ]
-    |> Supervisor.init(options()) #supervise(options())
+    # supervise(options())
+    |> Supervisor.init(options())
   end
 
   def children(config) do
@@ -70,11 +73,12 @@ defmodule Nerves.Grove.PCA9685.ServoSupervisor do
 
   def init() do
     [
-      #worker(Registry, [:unique, @servo_registry_name])
-      {Registry, keys: :unique, name: @device_registry_name}
+      # worker(Registry, [:unique, @servo_registry_name])
+      {Registry, keys: :unique, name: @servo_registry_name}
       | children()
     ]
-    |> Supervisor.init(options()) #supervise(options())
+    # supervise(options())
+    |> Supervisor.init(options())
   end
 
   def children do

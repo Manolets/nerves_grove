@@ -63,7 +63,6 @@ defmodule Nerves.Grove.PCA9685.Device do
   Configures the PWM Pulse-width modulation frequency.
   F(hz)=1/T(s) 50hz=20ms
   """
-
   def pwm_freq(map, hz)
       when is_integer(hz),
       do: GenServer.cast(via_tuple(map), {:pwm_freq, hz})

@@ -34,11 +34,12 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervisor do
 
   def init(config) when is_list(config) do
     [
-      #worker(Registry, [:unique, @device_registry_name])
+      # worker(Registry, [:unique, @device_registry_name])
       {Registry, keys: :unique, name: @device_registry_name}
       | children(config)
     ]
-    |> Supervisor.init(options()) #supervise(options())
+    # supervise(options())
+    |> Supervisor.init(options())
   end
 
   def children(config) do
@@ -52,11 +53,12 @@ defmodule Nerves.Grove.PCA9685.DeviceSupervisor do
 
   def init() do
     [
-      #worker(Registry, [:unique, @device_registry_name])
+      # worker(Registry, [:unique, @device_registry_name])
       {Registry, keys: :unique, name: @device_registry_name}
       | children()
     ]
-    |> Supervisor.init(options()) #supervise(options())
+    # supervise(options())
+    |> Supervisor.init(options())
   end
 
   def children do
