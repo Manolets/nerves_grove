@@ -39,7 +39,7 @@ defmodule Nerves.Grove.PCA9685.Servo do
   See `ServoSweep` for more information.
   """
   def sweep(map, degrees, duration, step_delay)
-      when is_integer(step_delay),
+      when is_integer(step_delay) and step_delay > 0,
       do: sweep(map, degrees, duration)
 
   @doc """
@@ -47,6 +47,6 @@ defmodule Nerves.Grove.PCA9685.Servo do
   See `ServoSweep` for more information.
   """
   def sweep(map, degrees, duration)
-      when is_map(map) and is_integer(duration) and degrees in 0..180,
+      when is_map(map) and is_integer(duration) and duration > 200 and degrees in 0..180,
       do: ServoSweep.start_link(map, degrees, duration)
 end

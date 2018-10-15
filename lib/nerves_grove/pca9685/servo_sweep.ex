@@ -1,5 +1,6 @@
 defmodule Nerves.Grove.PCA9685.ServoSweep do
   alias Nerves.Grove.PCA9685.Servo
+  require Logger
   use GenServer
 
   @moduledoc """
@@ -38,11 +39,17 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   def init([servo_pid, target_position, duration, step_delay]) do
     current_position = Servo.position(servo_pid)
 
+    Logger.debug("servo_pid:#{inspect(servo_pid)} target_position:#{target_position}")
+
     if current_position == target_position do
       {:stop, :normal}
     else
-      [{s_pid, nil}] = Registry.lookup(:servo_proccess_registry_name, servo_pid)
-      Process.link(s_pid)
+      %{bus: bus, address: address, channel: channel} = servo_pid
+
+      with [{s_pid, _}] <-
+             Registry.lookup(:servo_proccess_registry_name, {bus, address, channel}),
+           do: Process.link(s_pid)
+
       total_steps = round(duration / step_delay)
 
       state = %{

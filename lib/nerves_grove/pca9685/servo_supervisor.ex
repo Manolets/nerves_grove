@@ -2,21 +2,6 @@ defmodule Nerves.Grove.PCA9685.ServoSupervisor do
   use Supervisor
   @servo_srv Nerves.Grove.PCA9685.Servo
   @servo_registry_name :servo_proccess_registry_name
-  @devices [%{bus: 1, address: 0x40, pwm_freq: 50}]
-  @servos [
-    %{bus: 1, address: 0x40, channel: 0, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 1, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 2, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 3, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 4, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 5, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 6, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 7, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 8, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 9, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 10, position: 90, min: 175, max: 575},
-    %{bus: 1, address: 0x40, channel: 11, position: 90, min: 175, max: 575}
-  ]
   @moduledoc """
   Servo GenServer Supervisor module
     Servo managed by  pca9685 Worker
@@ -37,16 +22,13 @@ defmodule Nerves.Grove.PCA9685.ServoSupervisor do
           ]
   RingLogger.attach()
   alias Nerves.Grove.PCA9685.{ServoSupervisor,Servo,DeviceSupervisor,Device}
-  ServoSupervisor.start_shield()
+  Nerves.Grove.PCA9685.Tetrapod.start_shield()
   DeviceSupervisor.account_process_devices
   ServoSupervisor.account_process_servos
-  Servo.position(%{bus: 1, address: 0x40, channel: 0},90)
+  Servo.position(%{bus: 1, address: 0x40, channel: 0},0)
   Servo.position(%{bus: 1, address: 0x40, channel: 1},180)
+  Servo.sweep(%{bus: 1, address: 0x40, channel: 0},90,1000)
   """
-  def start_shield() do
-    Nerves.Grove.PCA9685.DeviceSupervisor.start_link(@devices)
-    start_link(@servos)
-  end
 
   def start_link(config) when is_list(config) do
     Supervisor.start_link(__MODULE__, config, name: __MODULE__)
