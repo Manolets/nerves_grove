@@ -19,29 +19,29 @@ defmodule Nerves.Grove.PCA9685.Tetrapod do
   @moduledoc """
   Tetrapod utils
   RingLogger.attach()
-  Nerves.Grove.PCA9685.Tetrapod.start_shield()
-  Nerves.Grove.PCA9685.Servo.position(
-    Nerves.Grove.PCA9685.Tetrapod.limb_id(:brknee),90
-  )
+  alias Nerves.Grove.PCA9685.{Tetrapod,Servo}
+  Tetrapod.start_shield()
+  Servo.position(Tetrapod.limb_id(:brk),90)
   """
   def start_shield() do
     DeviceSupervisor.start_link(@devices)
     ServoSupervisor.start_link(@servos)
   end
 
-  def limb_id(limb) do
+  def limb_id(limb) when is_atom(limb) do
     Logger.debug("Limb #{limb}")
 
     %{bus: bus, address: address, channel: channel} =
       Enum.find(@servos, fn x ->
         %{limb: y} = x
 
-        cond do
-          limb == y -> true
-          true -> false
+        if limb == y do
+          true
+        else
+          false
         end
       end)
 
-    {bus, address, channel}
+    %{bus: bus, address: address, channel: channel}
   end
 end

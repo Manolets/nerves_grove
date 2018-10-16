@@ -5,10 +5,14 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
 
   @moduledoc """
   Sweeps a servo through a rotation over a specified period of time.
+  RingLogger.attach()
+  alias Nerves.Grove.PCA9685.{ServoSupervisor,Servo,DeviceSupervisor,Device}
+  Nerves.Grove.PCA9685.Tetrapod.start_shield()
+  Servo.sweep(%{bus: 1, address: 0x40, channel: 0},90,1000)
   """
 
   # mS
-  @default_step_delay 10
+  @default_step_delay 1000
 
   @doc """
   Spawns a process which will rotate a servo.
@@ -84,6 +88,7 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   @doc false
   def handle_info(:step, %{servo_pid: p, target: t, left: 1, waiting: w} = state) do
     Servo.position(p, round(t))
+    Logger.debug("Servo.position(#{inspect(p)}, round(#{t}))")
     Enum.each(w, &GenServer.reply(&1, :ok))
     {:stop, :normal, state}
   end
@@ -92,12 +97,14 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   def handle_info(:step, %{servo_pid: p, current: c, delay: d, step: s, left: l} = state) do
     next = c + s
     Servo.position(p, round(next))
+    Logger.debug("Servo.position(#{inspect(p)}, round(#{next})")
     state = %{state | current: next, left: l - 1}
     queue_next_step(d)
     {:noreply, state}
   end
 
   defp queue_next_step(step_delay) do
+    Logger.debug("Process.send_after(#{inspect(self())}, :step, #{step_delay})")
     Process.send_after(self(), :step, step_delay)
   end
 end

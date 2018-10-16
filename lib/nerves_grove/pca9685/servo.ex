@@ -40,7 +40,7 @@ defmodule Nerves.Grove.PCA9685.Servo do
   """
   def sweep(map, degrees, duration, step_delay)
       when is_integer(step_delay) and step_delay > 0,
-      do: sweep(map, degrees, duration)
+      do: sweep(map, degrees, duration, step_delay)
 
   @doc """
   Begin the process of sweeping to a new target position over a period of time.
