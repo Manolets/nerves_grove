@@ -5,10 +5,11 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
 
   @moduledoc """
   Sweeps a servo through a rotation over a specified period of time.
-  RingLogger.attach()
   alias Nerves.Grove.PCA9685.{ServoSupervisor,Servo,DeviceSupervisor,Device}
   Nerves.Grove.PCA9685.Tetrapod.start_shield()
-  Servo.sweep(%{bus: 1, address: 0x40, channel: 0},90,1000)
+  RingLogger.attach()
+  Servo.tsweep(%{bus: 1, address: 0x40, channel: 0},90,1000,100)
+  Servo.nsweep(%{bus: 1, address: 0x40, channel: 0},90,10,100)
   """
 
   # mS
@@ -18,10 +19,8 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   Spawns a process which will rotate a servo.
   The sweep starts immediately.
   """
-  @spec start_link(map, 0..180, pos_integer) :: {:ok, pid} | {:error, :normal}
-  def start_link(servo_pid, target_position, duration, step_delay \\ @default_step_delay) do
-    GenServer.start_link(__MODULE__, [servo_pid, target_position, duration, step_delay])
-  end
+  def start_link(servo_via, target_position, total_steps, step_delay),
+    do: GenServer.start_link(__MODULE__, [servo_via, target_position, total_steps, step_delay])
 
   @doc """
   Wait until the servo sweep has been completed or cancelled.
@@ -40,23 +39,23 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   ########################################################
 
   @doc false
-  def init([servo_pid, target_position, duration, step_delay]) do
-    current_position = Servo.position(servo_pid)
-
-    Logger.debug("servo_pid:#{inspect(servo_pid)} target_position:#{target_position}")
+  def init([servo_via, target_position, total_steps, step_delay]) do
+    current_position = Servo.position(servo_via)
 
     if current_position == target_position do
       {:stop, :normal}
     else
-      %{bus: bus, address: address, channel: channel} = servo_pid
+      servo_pid =
+        with %{bus: bus, address: address, channel: channel} <- servo_via,
+             [{servo_pid, _}] <-
+               Registry.lookup(:servo_proccess_registry_name, {bus, address, channel}),
+             true <- Process.link(servo_pid),
+             do: servo_pid
 
-      with [{s_pid, _}] <-
-             Registry.lookup(:servo_proccess_registry_name, {bus, address, channel}),
-           do: Process.link(s_pid)
-
-      total_steps = round(duration / step_delay)
+      Logger.debug("servo_pid:#{inspect(servo_pid)}")
 
       state = %{
+        servo_via: servo_via,
         servo_pid: servo_pid,
         current: current_position,
         target: target_position,
@@ -66,6 +65,7 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
         waiting: []
       }
 
+      Logger.debug("state: #{inspect(state)})")
       queue_next_step(step_delay)
       {:ok, state}
     end
@@ -86,7 +86,7 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   end
 
   @doc false
-  def handle_info(:step, %{servo_pid: p, target: t, left: 1, waiting: w} = state) do
+  def handle_info(:step, %{servo_via: p, target: t, left: 1, waiting: w} = state) do
     Servo.position(p, round(t))
     Logger.debug("Servo.position(#{inspect(p)}, round(#{t}))")
     Enum.each(w, &GenServer.reply(&1, :ok))
@@ -94,7 +94,7 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   end
 
   @doc false
-  def handle_info(:step, %{servo_pid: p, current: c, delay: d, step: s, left: l} = state) do
+  def handle_info(:step, %{servo_via: p, current: c, delay: d, step: s, left: l} = state) do
     next = c + s
     Servo.position(p, round(next))
     Logger.debug("Servo.position(#{inspect(p)}, round(#{next})")

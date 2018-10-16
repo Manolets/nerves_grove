@@ -2,6 +2,8 @@ defmodule Nerves.Grove.PCA9685.Servo do
   alias Nerves.Grove.PCA9685.ServoSweep
   @servo_registry_name :servo_proccess_registry_name
   @server Nerves.Grove.PCA9685.ServoServer
+    # mS
+    @default_step_delay 300
   @moduledoc """
   Represents a positionable servo connected to an specific channel and  pin on a PCA9685 device.
     [%{bus: 1, address: 0x40, channel: 0, position: 90, min: 175, max: 575},
@@ -38,15 +40,26 @@ defmodule Nerves.Grove.PCA9685.Servo do
   Begin the process of sweeping to a new target position over a period of time.
   See `ServoSweep` for more information.
   """
-  def sweep(map, degrees, duration, step_delay)
-      when is_integer(step_delay) and step_delay > 0,
-      do: sweep(map, degrees, duration, step_delay)
+  def tsweep(map, degrees, duration, step_delay \\ @default_step_delay)
+      when is_integer(step_delay) and step_delay > 0 do
+    total_steps =
+      case round(duration / step_delay) do
+        0 -> 1
+        x -> x
+      end
+
+    sweep(map, degrees, total_steps, step_delay)
+  end
 
   @doc """
-  Begin the process of sweeping to a new target position over a period of time.
+  Begin the process of sweeping to a new target position n total_steps times.
   See `ServoSweep` for more information.
   """
-  def sweep(map, degrees, duration)
-      when is_map(map) and is_integer(duration) and duration > 200 and degrees in 0..180,
-      do: ServoSweep.start_link(map, degrees, duration)
+  def nsweep(map, degrees, total_steps, step_delay \\ @default_step_delay)
+      when is_integer(step_delay) and step_delay > 0,
+      do: sweep(map, degrees, total_steps, step_delay)
+
+  defp sweep(map, degrees, total_steps, step_delay)
+       when is_map(map) and degrees in 0..180,
+       do: ServoSweep.start_link(map, degrees, total_steps, step_delay)
 end
