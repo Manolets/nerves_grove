@@ -74,6 +74,7 @@ defmodule Nerves.Grove.PCA9685.DeviceImpl do
          :ok <- I2C.write_byte_data(handle, @led0_on_h + 4 * channel, on >>> 8),
          :ok <- I2C.write_byte_data(handle, @led0_off_l + 4 * channel, off &&& 0xFF),
          :ok <- I2C.write_byte_data(handle, @led0_off_h + 4 * channel, off >>> 8),
+         :ok <- Process.sleep(5),
          do: :ok
   end
 
