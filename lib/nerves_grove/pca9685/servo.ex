@@ -2,8 +2,8 @@ defmodule Nerves.Grove.PCA9685.Servo do
   alias Nerves.Grove.PCA9685.ServoSweep
   @servo_registry_name :servo_proccess_registry_name
   @server Nerves.Grove.PCA9685.ServoServer
-    # mS
-    @default_step_delay 300
+  # mS
+  @default_step_delay 300
   @moduledoc """
   Represents a positionable servo connected to an specific channel and  pin on a PCA9685 device.
     [%{bus: 1, address: 0x40, channel: 0, position: 90, min: 175, max: 575},

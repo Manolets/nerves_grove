@@ -82,45 +82,4 @@ defmodule Nerves.Grove.PCA9685.Device do
       when is_integer(channel)
       when on in 0..4096 and off in 0..4096 and channel in 0..15,
       do: GenServer.cast(via_tuple(map), {:channel, channel, on, off})
-
-  ############################################################################
-  ############################################################################
-  ############################################################################
-  def start_shield() do
-    {:ok, handle} = I2C.open(1, @pca9685_address)
-    I2C.write_byte_data(handle, @mode2, @outdrv)
-    I2C.write_byte_data(handle, @mode1, @allcall)
-    {:ok, mode1} = I2C.read_byte_data(handle, @mode1)
-    mode1 = mode1 &&& ~~~@sleep
-    I2C.write_byte_data(handle, @mode1, mode1)
-    Process.sleep(10)
-
-    set_pwm_freq(handle, 50)
-
-    handle
-  end
-
-  def set_pwm_freq(handle, freq) do
-    prescaleval = 25_000_000.0 / 4096.0 / freq - 1
-    prescale = (prescaleval + 0.5) |> Float.floor() |> trunc()
-    {:ok, olmode} = I2C.read_byte_data(handle, @mode1)
-    newmode = (olmode &&& 0x7F) ||| 0x10
-    I2C.write_byte_data(handle, @mode1, newmode)
-    I2C.write_byte_data(handle, @prescale, prescale)
-    I2C.write_byte_data(handle, @mode1, olmode)
-    Process.sleep(10)
-    I2C.write_byte_data(handle, @mode1, olmode ||| 0x80)
-  end
-
-  def set_pwm(handle, channel, on, off) do
-    I2C.write_byte_data(handle, @led0_on_l + 4 * channel, on &&& 0xFF)
-    I2C.write_byte_data(handle, @led0_on_h + 4 * channel, on >>> 8)
-    I2C.write_byte_data(handle, @led0_off_l + 4 * channel, off &&& 0xFF)
-    I2C.write_byte_data(handle, @led0_off_h + 4 * channel, off >>> 8)
-  end
-
-  def set_servo(handle, channel, degres) do
-    off = (2.5 * degres + 150) |> round()
-    set_pwm(handle, channel, 0, off)
-  end
 end
