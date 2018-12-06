@@ -14,7 +14,10 @@ defmodule Nerves.Grove.PCA9685.Tetrapod do
     %{limb: :blk, bus: 1, address: 0x40, channel: 8, position: 90, min: 130, max: 560},
     %{limb: :flb, bus: 1, address: 0x40, channel: 9, position: 90, min: 130, max: 590},
     %{limb: :flh, bus: 1, address: 0x40, channel: 10, position: 90, min: 140, max: 600},
-    %{limb: :flk, bus: 1, address: 0x40, channel: 11, position: 90, min: 135, max: 500}
+    %{limb: :flk, bus: 1, address: 0x40, channel: 11, position: 90, min: 135, max: 500},
+    %{limb: :xpinza, bus: 1, address: 0x40, channel: 12, position: 90, min: 135, max: 500},
+    %{limb: :ypinza, bus: 1, address: 0x40, channel: 13, position: 90, min: 135, max: 500},
+    %{limb: :pinza, bus: 1, address: 0x40, channel: 14, position: 90, min: 135, max: 500}
   ]
   @moduledoc """
   Tetrapod utils
