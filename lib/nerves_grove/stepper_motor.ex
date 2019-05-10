@@ -30,7 +30,7 @@ defmodule Nerves.Grove.StepperMotor do
   def forward(steps, pins, sleep) do
     get_pair(:pins)
 
-    for n <- 0..steps do
+    for _n <- 0..steps do
       Pigpiox.GPIO.write(pins.a, 1)
       Process.sleep(sleep)
       Pigpiox.GPIO.write(pins.b, 1)
@@ -57,7 +57,7 @@ defmodule Nerves.Grove.StepperMotor do
   def backward(steps, pins, sleep) do
     get_pair(:pins)
 
-    for n <- 0..steps do
+    for _n <- 0..steps do
       Pigpiox.GPIO.write(pins.d, 1)
       Process.sleep(sleep)
       Pigpiox.GPIO.write(pins.c, 1)

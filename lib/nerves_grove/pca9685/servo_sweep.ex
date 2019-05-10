@@ -13,7 +13,7 @@ defmodule Nerves.Grove.PCA9685.ServoSweep do
   """
 
   # mS
-  @default_step_delay 1000
+  #@default_step_delay 1000
 
   @doc """
   Spawns a process which will rotate a servo.

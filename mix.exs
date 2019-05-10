@@ -60,7 +60,7 @@ defmodule Nerves.Grove.Mixfile do
       {:earmark, "~> 1.2", only: :dev, runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:excoveralls, "~> 0.1", only: :test, runtime: false},
-      {:gpio_rpi, "~> 0.2"},
+      {:circuits_gpio, "~> 0.1"},
       {:pigpiox, path: "../pigpiox"}
     ]
   end

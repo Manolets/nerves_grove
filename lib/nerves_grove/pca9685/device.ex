@@ -1,25 +1,25 @@
 defmodule Nerves.Grove.PCA9685.Device do
-  alias Pigpiox.I2C
+  #alias Pigpiox.I2C
   use Bitwise
   require Logger
   @type pulse :: 0..4096
   @type channel :: 0..15
   @server Nerves.Grove.PCA9685.DeviceServer
   @device_registry_name :PCA9685_proccess_registry
-  @pca9685_address 0x40
-  @mode1 0x00
-  @mode2 0x01
-  @prescale 0xFE
-  @led0_on_l 0x06
-  @led0_on_h 0x07
-  @led0_off_l 0x08
-  @led0_off_h 0x09
+  #@pca9685_address 0x40
+  #@mode1 0x00
+  #@mode2 0x01
+  #@prescale 0xFE
+  #@led0_on_l 0x06
+  #@led0_on_h 0x07
+  #@led0_off_l 0x08
+  #@led0_off_h 0x09
   # Bits:
   # @restart 0x80
-  @sleep 0x10
-  @allcall 0x01
+  #@sleep 0x10
+  #@allcall 0x01
   # @invrt 0x10
-  @outdrv 0x04
+  #@outdrv 0x04
   @moduledoc """
   This module controlls the PCA9685, a servo shield capable of emitting multiple pwms simultaneously,
 
