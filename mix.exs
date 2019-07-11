@@ -61,6 +61,7 @@ defmodule Nerves.Grove.Mixfile do
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:excoveralls, "~> 0.1", only: :test, runtime: false},
       {:circuits_gpio, "~> 0.1"},
+      {:circuits_i2c, "~> 0.1"},
       {:pigpiox, path: "../pigpiox"}
     ]
   end
