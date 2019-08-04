@@ -13,9 +13,13 @@ defmodule Nerves.Grove.MCP23017.Server do
   3.3V  3.3V  3.3V    0x27
 
   To test the module try:
-  Nerves.Grove.MCP23017.Supervisor.start_link(0x20)
-  Nerves.Grove.MCP23017.Fns.set_mode(0, :output)
-  Nerves.Grove.MCP23017.Fns.output(0, 1)
+  Nerves.Grove.MCP23017.Supervisor.start_link(0x21)
+  for pin <- 15..0 do
+  Nerves.Grove.MCP23017.Fns.set_mode(pin, :output)
+  Process.sleep(10)
+  Nerves.Grove.MCP23017.Fns.output(pin, 1)
+  Process.sleep(10)
+  end
   """
 
   use GenServer
@@ -26,8 +30,10 @@ defmodule Nerves.Grove.MCP23017.Server do
   @bank '16bit'
 
   def init(addr \\ 0x20) do
+    Logger.debug("Going to open address #{inspect(addr)}")
     {:ok, handle} = I2C.open(1, addr)
     state = %{handle: handle}
+    Logger.debug("Started MCP chip on address #{inspect(addr)} ")
     {:ok, state}
   end
 
@@ -122,7 +128,7 @@ defmodule Nerves.Grove.MCP23017.Server do
   def handle_cast({:set_mode, pin, mode, pullUp}, state) do
     handle = state.handle
     # GPIO direction set up section
-    Logger.debug("Got to set mode fn")
+    Logger.debug("Got to set pin #{inspect(pin)} to mode #{inspect(mode)} ")
     {reg, bit} = register_bit_select(handle, pin, 0x00, 0x00, 0x10, 0x01)
 
     modreg =
@@ -132,8 +138,8 @@ defmodule Nerves.Grove.MCP23017.Server do
         reg
       end
 
-    {:ok, regValue} = I2C.read_byte_data(handle, modreg)
-    # regValue = single_access_read(handle, modreg)
+    
+    regValue = single_access_read(handle, modreg)
 
     # mode = input
     if mode == :output do
@@ -150,8 +156,7 @@ defmodule Nerves.Grove.MCP23017.Server do
 
     if mode == :input do
       {reg, bit} = register_bit_select(handle, pin, 0x06, 0x0C, 0x16, 0x0D)
-      {:ok, regValue} = I2C.read_byte_data(handle, reg)
-      # regValue = single_access_read(handle, reg)
+      regValue = single_access_read(handle, reg)
 
       # pullUp = disable
       if pullUp == 'enable' do
@@ -175,7 +180,7 @@ defmodule Nerves.Grove.MCP23017.Server do
   """
   def handle_cast({:output, pin, value}, state) do
     handle = state.handle
-    Logger.debug("Got to output fn")
+    Logger.debug("Got to output #{inspect(value)} on pin #{inspect(pin)} fn")
     {reg, bit} = register_bit_select(handle, pin, 0x0A, 0x14, 0x1A, 0x15)
 
     regValue = single_access_read(handle, reg)
